@@ -1,3 +1,3 @@
 (ns fogus.me.defcontract-tests
-  (:use [fogus.me.defcontract :as ct]))
+  (:use [fogus.me.trammel :as ct]))
 
