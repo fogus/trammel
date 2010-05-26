@@ -12,5 +12,31 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.defcontract-tests
-  (:use [fogus.me.trammel :as ct]))
+  (:use [fogus.me.trammel :only [contract]])
+  (:use [clojure.test :only [deftest is]]))
+
+(def doubler-contract
+     (contract doubler 
+       [x]
+       (requires
+         (pos? x))
+         (ensures
+          (= (* 2 x) %))
+       [x y]
+       (requires
+         (pos? x)
+         (pos? y))
+       (ensures
+         (= (* 2 (+ x y)) %))))
+
+(deftest doubler-test
+  (is (= 10 ((partial doubler-contract #(* 2 (+ %1 %2))) 2 3)))
+  (is (= 10 ((partial doubler-contract #(+ %1 %1 %2 %2)) 2 3)))
+  (is (= 10 ((partial doubler-contract #(* 2 %)) 5)))
+  (is (= 42 
+         (try ((partial doubler-contract #(* 3 (+ %1 %2))) 2 3)
+              (catch Error e 42)))))
+
+(deftest contract-test
+  (doubler-test))
 
