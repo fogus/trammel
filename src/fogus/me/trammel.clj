@@ -39,50 +39,6 @@
                                (rest forms)
                                forms))]
     (list* 'fn name body)))
-
-
-(declare kollect-bodies build-kontract)
-
-(defmacro kontract [& forms]
-  (let [name (if (symbol? (first forms))
-               (first forms) 
-               nil)
-        body (kollect-bodies (if name
-                               (rest forms)
-                               forms))]
-    `(quote ~body)))
-
-(defn- kollect-bodies [forms]
-  (let [bodies (->> (partition-by vector? forms)
-                    (partition 2))]
-    (for [body bodies]
-      (build-kontract (vec body)))))
-
-(defn- build-kontract [[[sig] expectations :as c]]
-  (let [[L R] (->> expectations
-                   (partition-by #{:requires :ensures})
-                   (partition 2))]
-    (println L)
-    (println)))
-
-(comment
-  (count (kontract doubler
-                   [x]
-                   #_:requires
-                   #_(pos? x)
-
-                   :ensures
-                   (= (* 2 x) %)
-
-                   [x y]
-                   :requires
-                   (pos? x)
-                   (pos? y)
-       
-                   :ensures
-                   (= (* 2 (+ x y)) %))))
-
-
 ;; USAGE
 
 (comment
@@ -120,3 +76,75 @@
   ((partial doubler-contract #(+ %1 %1 %2 %2)) 2 3)
 
   ((partial doubler-contract #(* 3 (+ %1 %2))) 2 3))
+
+;; Experimentation
+
+(defn- build-kontract [[[sig] expectations :as c]]
+  (list 
+    (into '[f] sig)
+    (apply merge
+           (let [parts (->> expectations
+                            (partition-by #{:requires :ensures})
+                            (partition 2))]
+             (for [[[dir] & [cnstr]] parts]
+               {(case dir
+                      :requires :pre
+                      :ensures  :post)
+                (vec cnstr)})))
+    (list* 'f sig)))
+
+
+(defn- kollect-bodies [forms]
+  (let [bodies (->> (partition-by vector? forms)
+                    (partition 2))]
+    (for [body bodies]
+      (build-kontract (vec body)))))
+
+
+(defmacro kontract [& forms]
+  (let [name (if (symbol? (first forms))
+               (first forms) 
+               nil)
+        body (kollect-bodies (if name
+                               (rest forms)
+                               forms))]
+    (list* 'fn name body)))
+
+(comment
+  (def doubler-contract
+       (kontract doubler
+                 [x]
+                 :requires
+                 (pos? x)
+
+                 :ensures
+                 (= (* 2 x) %)
+
+                 [x y]
+                 :requires
+                 (pos? x)
+                 (pos? y)
+       
+                 :ensures
+                 (= (* 2 (+ x y)) %)))
+
+  (def doubler-fn
+       (fn doubler
+         ([f x] 
+            {:post [(= (* 2 x) %)], 
+             :pre  [(pos? x)]} 
+            (f x)) 
+         ([f x y] 
+            {:post [(= (* 2 (+ x y)) %)], 
+             :pre  [(pos? x) (pos? y)]} 
+            (f x y))))
+
+  ((partial doubler-contract #(* 2 (+ %1 %2))) 2 3)
+
+  ((partial doubler-contract #(+ %1 %1 %2 %2)) 2 3)
+
+  ((partial doubler-contract #(* 3 (+ %1 %2))) 2 3)
+
+  ((partial doubler-contract #(* 2 %)) 3)
+
+  ((partial doubler-contract #(* 3 %)) 3))
