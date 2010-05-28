@@ -40,6 +40,51 @@
                                forms))]
     (list* 'fn name body)))
 
+
+(declare kollect-bodies build-kontract)
+
+(defmacro kontract [& forms]
+  (let [name (if (symbol? (first forms))
+               (first forms) 
+               nil)
+        body (kollect-bodies (if name
+                               (rest forms)
+                               forms))]
+    `(quote ~body)))
+
+(defn- kollect-bodies [forms]
+  (let [bodies (->> (partition-by vector? forms)
+                    (partition 2))]
+    (for [body bodies]
+      (build-kontract (vec body)))))
+
+(defn- build-kontract [[[sig] expectations :as c]]
+  (let [[L R] (->> expectations
+                   (partition-by #{:requires :ensures})
+                   (partition 2))]
+    (println L)
+    (println)))
+
+(comment
+  (count (kontract doubler
+                   [x]
+                   #_:requires
+                   #_(pos? x)
+
+                   :ensures
+                   (= (* 2 x) %)
+
+                   [x y]
+                   :requires
+                   (pos? x)
+                   (pos? y)
+       
+                   :ensures
+                   (= (* 2 (+ x y)) %))))
+
+
+;; USAGE
+
 (comment
   (def doubler
        (contract doubler 
@@ -62,6 +107,7 @@
           (pos? x))
          (ensures
           (= (* 2 x) %))
+
          [x y]
          (requires
           (pos? x)
