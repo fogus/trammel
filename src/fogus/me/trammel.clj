@@ -14,22 +14,27 @@
 (ns fogus.me.trammel
   (:use [clojure.test :as test]))
 
-(defn- build-contract [c]
-  (let [args (first c)]
-    (list
-     (into '[f] args)
-     (apply merge
-            (for [con (rest c)]            
-              (cond (= (first con) 'requires)
-                    (assoc {} :pre (vec (rest con)))
-                    (= (first con) 'ensures)
-                    (assoc {} :post (vec (rest con)))
-                    :else (throw (Exception. (str "Unknown tag " (first con)))))))
-     (list* 'f args))))
+;; Experimentation
+
+(defn- build-contract [[[sig] expectations :as c]]
+  (list 
+    (into '[f] sig)
+    (apply merge
+           (for [[[dir] & [cnstr]] (->> expectations
+                                        (partition-by #{:requires :ensures})
+                                        (partition 2))]
+             {(case dir
+                    :requires :pre
+                    :ensures  :post)
+              (vec cnstr)}))
+    (list* 'f sig)))
+
 
 (defn- collect-bodies [forms]
-  (for [form (partition 3 forms)]
-    (build-contract form)))
+  (for [body (->> (partition-by vector? forms)
+                  (partition 2))]
+    (build-contract body)))
+
 
 (defmacro contract [& forms]
   (let [name (if (symbol? (first forms))
@@ -39,80 +44,10 @@
                                (rest forms)
                                forms))]
     (list* 'fn name body)))
-;; USAGE
-
-(comment
-  (def doubler
-       (contract doubler 
-         [x]
-         (requires
-          (pos? x))
-         (ensures
-          (= (* 2 x) %))))
-
-  (def times2 (partial doubler #(* 2 %)))
-  (times2 9)
-  
-  (def times3 (partial doubler #(* 3 %)))
-  (times3 9)
-
-  (def doubler-contract
-       (contract doubler 
-         [x]
-         (requires
-          (pos? x))
-         (ensures
-          (= (* 2 x) %))
-
-         [x y]
-         (requires
-          (pos? x)
-          (pos? y))
-         (ensures
-          (= (* 2 (+ x y)) %))))
-
-  ((partial doubler-contract #(* 2 (+ %1 %2))) 2 3)
-
-  ((partial doubler-contract #(+ %1 %1 %2 %2)) 2 3)
-
-  ((partial doubler-contract #(* 3 (+ %1 %2))) 2 3))
-
-;; Experimentation
-
-(defn- build-kontract [[[sig] expectations :as c]]
-  (list 
-    (into '[f] sig)
-    (apply merge
-           (let [parts (->> expectations
-                            (partition-by #{:requires :ensures})
-                            (partition 2))]
-             (for [[[dir] & [cnstr]] parts]
-               {(case dir
-                      :requires :pre
-                      :ensures  :post)
-                (vec cnstr)})))
-    (list* 'f sig)))
-
-
-(defn- kollect-bodies [forms]
-  (let [bodies (->> (partition-by vector? forms)
-                    (partition 2))]
-    (for [body bodies]
-      (build-kontract (vec body)))))
-
-
-(defmacro kontract [& forms]
-  (let [name (if (symbol? (first forms))
-               (first forms) 
-               nil)
-        body (kollect-bodies (if name
-                               (rest forms)
-                               forms))]
-    (list* 'fn name body)))
 
 (comment
   (def doubler-contract
-       (kontract doubler
+       (contract doubler
                  [x]
                  :requires
                  (pos? x)
@@ -148,3 +83,73 @@
   ((partial doubler-contract #(* 2 %)) 3)
 
   ((partial doubler-contract #(* 3 %)) 3))
+
+
+
+
+(defn- build-kontract [c]
+  (let [args (first c)]
+    (list
+     (into '[f] args)
+     (apply merge
+            (for [con (rest c)]            
+              (cond (= (first con) 'requires)
+                    (assoc {} :pre (vec (rest con)))
+                    (= (first con) 'ensures)
+                    (assoc {} :post (vec (rest con)))
+                    :else (throw (Exception. (str "Unknown tag " (first con)))))))
+     (list* 'f args))))
+
+(defn- kollect-bodies [forms]
+  (for [form (partition 3 forms)]
+    (build-kontract form)))
+
+(defmacro kontract [& forms]
+  (let [name (if (symbol? (first forms))
+               (first forms) 
+               nil)
+        body (kollect-bodies (if name
+                               (rest forms)
+                               forms))]
+    (list* 'fn name body)))
+
+;; USAGE
+
+(comment
+  (def doubler
+       (kontract doubler 
+         [x]
+         (requires
+          (pos? x))
+         (ensures
+          (= (* 2 x) %))))
+
+  (def times2 (partial doubler #(* 2 %)))
+  (times2 9)
+  
+  (def times3 (partial doubler #(* 3 %)))
+  (times3 9)
+
+  (def doubler-kontract
+       (kontract doubler 
+         [x]
+         (requires
+          (pos? x))
+         (ensures
+          (= (* 2 x) %))
+
+         [x y]
+         (requires
+          (pos? x)
+          (pos? y))
+         (ensures
+          (= (* 2 (+ x y)) %))))
+
+  ((partial doubler-kontract #(* 2 (+ %1 %2))) 2 3)
+
+  ((partial doubler-kontract #(+ %1 %1 %2 %2)) 2 3)
+
+  ((partial doubler-kontract #(* 3 (+ %1 %2))) 2 3))
+
+(filter identity [1 nil 2 nil 3 nil 4])
+(doc remove)
