@@ -12,29 +12,7 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.trammel
-  (:use [clojure.test :as test]))
-
-;; Experimentation
-
-(defn- build-contract [[[sig] expectations :as c]]
-  (list 
-    (into '[f] sig)
-    (apply merge
-           (for [[[dir] & [cnstr]] (->> expectations
-                                        (partition-by #{:requires :ensures})
-                                        (partition 2))]
-             {(case dir
-                    :requires :pre
-                    :ensures  :post)
-              (vec cnstr)}))
-    (list* 'f sig)))
-
-
-(defn- collect-bodies [forms]
-  (for [body (->> (partition-by vector? forms)
-                  (partition 2))]
-    (build-contract body)))
-
+  (:use fogus.me.trammel.impl))
 
 (defmacro contract [& forms]
   (let [name (if (symbol? (first forms))
@@ -84,25 +62,6 @@
 
   ((partial doubler-contract #(* 3 %)) 3))
 
-
-
-
-(defn- build-kontract [c]
-  (let [args (first c)]
-    (list
-     (into '[f] args)
-     (apply merge
-            (for [con (rest c)]            
-              (cond (= (first con) 'requires)
-                    (assoc {} :pre (vec (rest con)))
-                    (= (first con) 'ensures)
-                    (assoc {} :post (vec (rest con)))
-                    :else (throw (Exception. (str "Unknown tag " (first con)))))))
-     (list* 'f args))))
-
-(defn- kollect-bodies [forms]
-  (for [form (partition 3 forms)]
-    (build-kontract form)))
 
 (defmacro kontract [& forms]
   (let [name (if (symbol? (first forms))
