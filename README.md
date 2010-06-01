@@ -8,17 +8,19 @@ While researching for [The Joy of Clojure](http://joyofclojure.com) I eventually
     (def cheese-contract
       (contract cheese
         [x]
-        (requires 
-          (= x :cheese))
-        (ensures
-          (string? %)
-          (= % "cheese"))
-        
+        :requires
+        (pos? x)
+    
+        :ensures
+        (= (* 2 x) %)
+    
         [x y]
-        (requires
-          (every? #(= :cheese %) [x y]))
-        (ensures 
-          (string? %))))
+        :requires
+        (pos? x)
+        (pos? y)
+       
+        :ensures
+        (= (* 2 (+ x y)) %)))
     
     (def do-something 
       (partial
@@ -47,7 +49,7 @@ Anyway, Trammel is in its infancy but I think that I have a nice springboard for
   3. Distinct pre and post exceptions
   4. An all-in-one defn/contract           (in progress)
   5. Study the heck out of everything Bertrand Meyer ever wrote (in progress)
-  6. Choose better names than `requires` and `ensures`
+  6. Choose better names than `:requires` and `:ensures`
 
 If you have any ideas or interesting references then I would be happy to discuss.
 
