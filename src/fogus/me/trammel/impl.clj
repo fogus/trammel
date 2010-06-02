@@ -13,17 +13,20 @@
 
 (ns fogus.me.trammel.impl)
 
+(defn build-constraints-map [expectations]
+  (apply merge
+         (for [[[dir] & [cnstr]] (->> expectations
+                                      (partition-by #{:requires :ensures})
+                                      (partition 2))]
+           {(case dir
+                  :requires :pre
+                  :ensures  :post)
+            (vec cnstr)})))
+
 (defn build-contract [[[sig] expectations :as c]]
   (list 
     (into '[f] sig)
-    (apply merge
-           (for [[[dir] & [cnstr]] (->> expectations
-                                        (partition-by #{:requires :ensures})
-                                        (partition 2))]
-             {(case dir
-                    :requires :pre
-                    :ensures  :post)
-              (vec cnstr)}))
+    (build-constraints-map expectations)
     (list* 'f sig)))
 
 

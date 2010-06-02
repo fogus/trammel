@@ -14,7 +14,8 @@
 (ns fogus.me.trammel
   (:use fogus.me.trammel.impl))
 
-(defmacro contract [& forms]
+(defmacro contract 
+  [& forms]
   (let [name (if (symbol? (first forms))
                (first forms) 
                nil)
@@ -22,6 +23,31 @@
                                (rest forms)
                                forms))]
     (list* 'fn name body)))
+
+(defmacro defconstrainedfn
+  [name & body]
+  (let [mdata (if (string? (first body))
+                {:doc (first body)}
+                {})
+        body  (if (:doc mdata)
+                (next body)
+                body)
+        parts 
+        ]
+    `(merge {:name '~name} ~mdata {:body '~body})))
+
+(defconstrainedfn sqr
+  "Calculates the square of a number."
+  ([n]
+     :requires
+     (number? n)
+     (not (zero? n))
+
+     :ensures
+     (pos? %)
+
+     :body
+     (* n n)))
 
 (comment
   (def doubler-contract
