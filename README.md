@@ -47,10 +47,26 @@ Anyway, Trammel is in its infancy but I think that I have a nice springboard for
   1. Abstracting out the use of `partial`  (in progress)
   2. Better error messages
   3. Distinct pre and post exceptions
-  4. An all-in-one defn/contract           (in progress)
+  4. An all-in-one defn/contract           [done](http://is.gd/cCsvF)
   5. Study the heck out of everything Bertrand Meyer ever wrote (in progress)
   6. Choose better names than `:requires` and `:ensures`
+  7. Type contracts
+  8. `defconstraint` -- with ability to relax requires and tighten ensures
+  9. Implicit arguments for isolated function.
 
 If you have any ideas or interesting references then I would be happy to discuss.
 
 :f
+
+
+References
+----------
+
+- *Object-oriented Software Construction* by Bertrand Meyer
+- *Eiffel: The Language* by Bertrand Meyer
+- [D](http://www.digitalmars.com/d/2.0/dbc.html)
+- *The Fortress Language Specification* by Guy L. Steele Jr., et al.
+- [System.Diagnostics.Contracts](http://msdn.microsoft.com/en-us/library/system.diagnostics.contracts.aspx)
+- *Contracts for Higher-order Functions* by Robert Bruce Findler and Matthias Felleisen
+- [Design by Contract and Unit Testing](http://onestepback.org/index.cgi/Tech/Programming/DbcAndTesting.html)
+- [Design by contract for Ruby](http://split-s.blogspot.com/2006/02/design-by-contract-for-ruby.html)
