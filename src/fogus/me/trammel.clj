@@ -25,6 +25,12 @@
          (rest forms)
          forms)))))
 
+(defmacro with-contracts
+  ([f] f)
+  ([f contract] (list 'partial contract f))
+  ([f contract & more]
+     `(with-contracts (with-contracts ~f ~contract) ~@more)))
+
 (defmacro defconstrainedfn
   [name & body]
   (let [mdata (if (string? (first body))
