@@ -24,6 +24,21 @@
                                forms))]
     (list* 'fn name body)))
 
+(defn build-forms-map
+  [forms]
+  (for [[[e] & c] (map #(partition-by keyword? %) data)]
+    {e (apply hash-map c)}))
+
+(comment
+  {:cnstr ({[x] {(:requires)
+                 ((number? x) (pos? x)),
+                 (:body) ((float x)),
+                 (:ensures) ((float? %))}}
+           
+           {[x y] {(:requires) ((every? number? [x y]) (every? pos? [x y])),
+                   (:body) ([(float x) (float y)]),
+                   (:ensures) ((every? float? %))}}), :doc "test", :name foo})
+
 (defmacro defconstrainedfn
   [name & body]
   (let [mdata (if (string? (first body))
@@ -32,9 +47,40 @@
         body  (if (:doc mdata)
                 (next body)
                 body)
-        parts 
-        ]
-    `(merge {:name '~name} ~mdata {:body '~body})))
+        fmap  (build-forms-map body)]
+    `(list 'defn '~name
+           (:doc ~mdata)
+           (for [bd# '~fmap]
+             (let [arg# (first (keys bd#))
+                   b#   (first (vals bd#))]
+               (list arg#
+                     {:pre  (vec (b# '(requires)))
+                      :post (vec (b# '(ensures)))}
+                     (b# '(body))))))))
+
+(defconstrainedfn foo
+  "test"
+  ([x]
+     :requires
+     (number? x)
+     (pos? x)
+     
+     :ensures
+     (float? %)
+     
+     :body
+     (float x))
+  ([x y]
+     :requires
+     (every? number? [x y])
+     (every? pos?    [x y])
+     
+     :ensures
+     (every? float? %)
+     
+     :body
+     [(float x) (float y)]))
+
 
 (defconstrainedfn sqr
   "Calculates the square of a number."
@@ -48,6 +94,8 @@
 
      :body
      (* n n)))
+
+*assert*
 
 (comment
   (def doubler-contract
