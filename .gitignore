@@ -1,2 +1,4 @@
 lib
 ._*
+classes
+*.jar

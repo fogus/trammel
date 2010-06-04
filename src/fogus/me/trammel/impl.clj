@@ -35,6 +35,21 @@
                   (partition 2))]
     (build-contract body)))
 
+(defn build-forms-map
+  [forms]
+  (for [[[e] & c] (map #(partition-by keyword? %) forms)]
+    {e (apply hash-map c)}))
+
+(comment
+  {:cnstr ({[x] {(:requires)
+                 ((number? x) (pos? x)),
+                 (:body) ((float x)),
+                 (:ensures) ((float? %))}}
+           
+           {[x y] {(:requires) ((every? number? [x y]) (every? pos? [x y])),
+                   (:body) ([(float x) (float y)]),
+                   (:ensures) ((every? float? %))}}), :doc "test", :name foo})
+
 
 (defn build-kontract [c]
   (let [args (first c)]
@@ -53,3 +68,4 @@
 (defn kollect-bodies [forms]
   (for [form (partition 3 forms)]
     (build-kontract form)))
+
