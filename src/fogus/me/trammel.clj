@@ -18,18 +18,23 @@
   [& forms]
   (let [name (if (symbol? (first forms))
                (first forms) 
-               nil)]
+               (gensym))]
     (list* 'fn name 
       (collect-bodies 
-       (if name
+       (if (symbol? (first forms))
          (rest forms)
          forms)))))
 
-(defmacro with-contracts
+(defmacro ^{:private true} chain-fn
   ([f] f)
   ([f contract] (list 'partial contract f))
   ([f contract & more]
      `(with-contracts (with-contracts ~f ~contract) ~@more)))
+
+(defmacro defcontract 
+  [name & forms]
+  `(def ~name
+     (contract ~@forms)))
 
 (defmacro defconstrainedfn
   [name & body]
@@ -59,4 +64,3 @@
        (if name
          (rest forms)
          forms)))))
-
