@@ -14,7 +14,46 @@
 (ns fogus.me.trammel
   (:use fogus.me.trammel.impl))
 
-(defmacro contract 
+(defmacro contract
+  "The base contract form returning a higher-order function that can then be partially
+   applied to an existing function to 'apply' a contract.  Take for example a simple
+   contract that describes an expectation for a function that simply takes one or two
+   numbers and returns the double:
+   
+    (def doubler-contract
+       (contract doubler
+         [x]
+         :requires
+         (number? x)
+    
+         :ensures
+         (= (* 2 x) %)
+    
+         [x y]
+         :requires
+         (every? number? [x y])
+           
+         :ensures
+         (= (* 2 (+ x y)) %))
+
+   You can then partially apply this contract with an existing function:
+
+    (def doubler (partial doubler-contract #(* 2 %)))
+    (def bad-doubler (partial doubler-contract #(* 3 %)))
+
+   And then running these functions will be checked against the contract at runtime:
+
+    (doubler 2)
+    ;=> 4
+
+    (bad-doubler 2)
+    ; java.lang.AssertionError: Assert failed: (= (* 2 x) %)
+
+   Similar results would occur for the 2-arity versions of `doubler` and `bad-doubler`.
+
+   While it's fine to use `partial` directly, it's better to use the `with-contracts` macro
+   found in this same library.
+  "
   [& forms]
   (let [name (if (symbol? (first forms))
                (first forms) 
