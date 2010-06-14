@@ -74,12 +74,33 @@
   ([f contract & more]
      `(with-contracts (with-contracts ~f ~contract) ~@more)))
 
-(defmacro defcontract 
+(defmacro defcontract
+  "Convenience function for defining a named contract.  Equivalent to `(def fc (contract ...))`"
   [name & forms]
   `(def ~name
      (contract ~@forms)))
 
 (defmacro defconstrainedfn
+  "Defines a function using the `contract` scheme with an additional `:body` element.
+
+    (defn sqr
+      \"Squares a number\"
+      [n]
+      :requires
+      (number? n)
+      (not= 0 n)
+
+      :ensures
+      (pos? %)
+
+      :body
+      (* n n))
+
+   The order of the `:requires`, `:ensures`, and `:body` sections are not relevant, but it's likely a
+   good idea to maintain consistency.  Like the `contract` macro, multiple arity functions can be defined
+   where each argument vector is followed by the relevent arity expectations.  The `:body` element is the
+   only required section for each defined function arity.
+  "
   [name & body]
   (let [mdata (if (string? (first body))
                 {:doc (first body)}
