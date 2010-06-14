@@ -51,7 +51,7 @@
 
    Similar results would occur for the 2-arity versions of `doubler` and `bad-doubler`.
 
-   While it's fine to use `partial` directly, it's better to use the `with-contracts` macro
+   While it's fine to use `partial` directly, it's better to use the `with-constraints` macro
    found in this same library.
   "
   [& forms]
@@ -64,7 +64,11 @@
          (rest forms)
          forms)))))
 
-(defmacro ^{:private true} chain-fn
+(defmacro with-constraints
+  "Takes a target function and a number of contracts and returns a function with the contracts
+   applied to the original.  This is the preferred way to apply a contract previously created
+   using `contract` as the use of `partial` may not work as implementation details change.
+  "
   ([f] f)
   ([f contract] (list 'partial contract f))
   ([f contract & more]
