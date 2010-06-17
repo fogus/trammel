@@ -9,26 +9,26 @@ While researching for [The Joy of Clojure](http://joyofclojure.com) I eventually
     (def cheese-contract
       (contract cheese
         [x]
-        :requires
-        (pos? x)
+        :requires 
+        (= x :cheese)
     
         :ensures
-        (= (* 2 x) %)
+        (string? %)
+        (= % "cheese")
     
         [x y]
         :requires
-        (pos? x)
-        (pos? y)
-       
-        :ensures
-        (= (* 2 (+ x y)) %)))
+        (every? #(= :cheese %) [x y])
+    
+        :ensures 
+        (string? %)))
     
     (def do-something 
-      (partial
-        cheese-contract
+      (with-constraints
         (fn 
           ([x] (name x))
-          ([x y] (str x y)))))
+          ([x y] (str x y)))
+        cheese-contract))
     
     (do-something :cheese)
     ;=> "cheese"
