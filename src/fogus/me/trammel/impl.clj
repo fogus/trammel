@@ -24,12 +24,10 @@
             (vec cnstr)})))
 
 (defn build-contract [[[sig] expectations :as c]]
-  (println c)
   (list 
     (into '[f] sig)
     (build-constraints-map expectations)
     (list* 'f sig)))
-
 
 (defn collect-bodies [forms]
   (for [body (->> (partition-by vector? forms)
@@ -38,35 +36,10 @@
 
 (defn build-forms-map
   [forms]
-  (for [[[e] & c] (map #(partition-by keyword? %) (if (vector? (first forms)) (list forms) forms))]
+  (for [[[e] & c] (map #(partition-by keyword? %) 
+                       (if (vector? (first forms)) 
+                         (list forms) 
+                         forms))]
     {e (apply hash-map c)}))
 
-(comment
-  {:cnstr ({[x] {(:requires)
-                 ((number? x) (pos? x)),
-                 (:body) ((float x)),
-                 (:ensures) ((float? %))}}
-           
-           {[x y] {(:requires) ((every? number? [x y]) (every? pos? [x y])),
-                   (:body) ([(float x) (float y)]),
-                   (:ensures) ((every? float? %))}}), :doc "test", :name foo})
-
-
-(defn build-kontract [c]
-  (let [args (first c)]
-    (list
-     (into '[f] args)
-     (apply merge
-            (for [con (rest c)]            
-              (cond (= (first con) 'requires)
-                    (assoc {} :pre (vec (rest con)))
-                    (= (first con) 'ensures)
-                    (assoc {} :post (vec (rest con)))
-                    :else (throw (Exception. (str "Unknown tag " (first con)))))))
-     (list* 'f args))))
-
-
-(defn kollect-bodies [forms]
-  (for [form (partition 3 forms)]
-    (build-kontract form)))
 

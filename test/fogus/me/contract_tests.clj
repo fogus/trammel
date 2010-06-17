@@ -11,32 +11,33 @@
 ;; agreeing to be bound by the terms of this license.  You must not
 ;; remove this notice, or any other, from this software.
 
-(ns fogus.me.kontract-tests
-  (:use [fogus.me.trammel :only [contract kontract]])
+(ns fogus.me.contract-tests
+  (:use [fogus.me.trammel :only [contract]])
   (:use [clojure.test :only [deftest is]]))
 
-(def doubler-kontract
-     (kontract doubler 
+(def doubler-contract
+     (contract doubler 
        [x]
-       (requires
-         (pos? x))
-         (ensures
-          (= (* 2 x) %))
-       [x y]
-       (requires
-         (pos? x)
-         (pos? y))
-       (ensures
-         (= (* 2 (+ x y)) %))))
+       :requires
+       (pos? x)
+       :ensures
+       (= (* 2 x) %)
 
-(deftest doubler-kontract-test
-  (is (= 10 ((partial doubler-kontract #(* 2 (+ %1 %2))) 2 3)))
-  (is (= 10 ((partial doubler-kontract #(+ %1 %1 %2 %2)) 2 3)))
-  (is (= 10 ((partial doubler-kontract #(* 2 %)) 5)))
+       [x y]
+       :requires
+       (pos? x)
+       (pos? y)
+       :ensures
+       (= (* 2 (+ x y)) %)))
+
+(deftest doubler-contract-test
+  (is (= 10 ((partial doubler-contract #(* 2 (+ %1 %2))) 2 3)))
+  (is (= 10 ((partial doubler-contract #(+ %1 %1 %2 %2)) 2 3)))
+  (is (= 10 ((partial doubler-contract #(* 2 %)) 5)))
   (is (= 42 
-         (try ((partial doubler-kontract #(* 3 (+ %1 %2))) 2 3)
+         (try ((partial doubler-contract #(* 3 (+ %1 %2))) 2 3)
               (catch Error e 42)))))
 
-(deftest kontract-test
-  (doubler-kontract-test))
+(deftest contract-test
+  (doubler-contract-test))
 

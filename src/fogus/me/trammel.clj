@@ -34,7 +34,7 @@
          (every? number? [x y])
            
          :ensures
-         (= (* 2 (+ x y)) %))
+         (= (* 2 (+ x y)) %)))
 
    You can then partially apply this contract with an existing function:
 
@@ -118,13 +118,3 @@
     `(defn ~name
        ~(:doc mdata)
        ~@body)))
-
-(defmacro kontract [& forms]
-  (let [name (if (symbol? (first forms))
-               (first forms) 
-               nil)]
-    (list* 'fn name 
-      (kollect-bodies 
-       (if name
-         (rest forms)
-         forms)))))
