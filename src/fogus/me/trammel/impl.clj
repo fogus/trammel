@@ -24,6 +24,7 @@
             (vec cnstr)})))
 
 (defn build-contract [[[sig] expectations :as c]]
+  (println c)
   (list 
     (into '[f] sig)
     (build-constraints-map expectations)
@@ -37,7 +38,7 @@
 
 (defn build-forms-map
   [forms]
-  (for [[[e] & c] (map #(partition-by keyword? %) forms)]
+  (for [[[e] & c] (map #(partition-by keyword? %) (if (vector? (first forms)) (list forms) forms))]
     {e (apply hash-map c)}))
 
 (comment

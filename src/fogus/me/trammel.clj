@@ -83,7 +83,7 @@
 (defmacro defconstrainedfn
   "Defines a function using the `contract` scheme with an additional `:body` element.
 
-    (defn sqr
+    (defconstrainedfn sqr
       \"Squares a number\"
       [n]
       :requires
