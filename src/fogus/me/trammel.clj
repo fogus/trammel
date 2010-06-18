@@ -116,5 +116,5 @@
                           :post (vec (b '(:ensures)))}
                          (b '(:body)))))]
     `(defn ~name
-       ~(:doc mdata)
+       ~(if (:doc mdata) (:doc mdata) "")
        ~@body)))

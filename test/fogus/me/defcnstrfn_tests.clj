@@ -58,7 +58,7 @@
 
 (defconstrainedfn sqr
   "Calculates the square of a number."
-  ([n]
+  [n]
      :requires
      (number? n)
      (not (zero? n))
@@ -67,9 +67,9 @@
      (pos? %)
 
      :body
-     (* n n)))
+     (* n n))
 
-(deftest cnstr-sqr-test
+(deftest singlebody-cnstr-fn-test
   (is (= 36 (sqr  6)))
   (is (= 36 (sqr -6)))
   (is (= 42 
@@ -79,6 +79,29 @@
          (try (sqr :a)
               (catch Error e 42)))))
 
+(defconstrainedfn no-doc  [n]
+     :requires
+     (number? n)
+     (not (zero? n))
+
+    :ensures
+     (pos? %)
+
+     :body
+     (* n n))
+
+
+(deftest no-doc-cnstr-fn-test
+  (is (= 36 (no-doc  6)))
+  (is (= 36 (no-doc -6)))
+  (is (= 42 
+         (try (no-doc 0)
+              (catch Error e 42))))
+  (is (= 42 
+         (try (no-doc :a)
+             (catch Error e 42)))))
+
 (deftest defconstrainedfn-test
   (multibody-cnstr-fn-test)
-  (cnstr-sqr-test))
+  (singlebody-cnstr-fn-test)
+  (no-doc-cnstr-fn-test))
