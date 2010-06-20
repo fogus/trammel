@@ -42,64 +42,47 @@
 (deftest multibody-cnstr-fn-test
   (is (= 1.0 (positive-nums 1)))
   (is (= [1.0 2.0] (positive-nums 1 2)))
-  (is (= 42 
-         (try (positive-nums -1)
-              (catch Error e 42))))
-  (is (= 42 
-         (try (positive-nums -1 2)
-              (catch Error e 42))))
-  (is (= 42 
-         (try (positive-nums 2 -1)
-              (catch Error e 42))))
-  (is (= 42 
-         (try (positive-nums -1 -2)
-              (catch Error e 42)))))
-
+  (is (thrown? Error (positive-nums -1)))
+  (is (thrown? Error (positive-nums -1 2)))
+  (is (thrown? Error (positive-nums 2 -1)))
+  (is (thrown? Error (positive-nums -1 -2))))
 
 (defconstrainedfn sqr
   "Calculates the square of a number."
   [n]
-     :requires
-     (number? n)
-     (not (zero? n))
+  :requires
+  (number? n)
+  (not (zero? n))
+  
+  :ensures
+  (pos? %)
 
-     :ensures
-     (pos? %)
-
-     :body
-     (* n n))
+  :body
+  (* n n))
 
 (deftest singlebody-cnstr-fn-test
   (is (= 36 (sqr  6)))
   (is (= 36 (sqr -6)))
-  (is (= 42 
-         (try (sqr 0)
-              (catch Error e 42))))
-  (is (= 42 
-         (try (sqr :a)
-              (catch Error e 42)))))
+  (is (thrown? Error (sqr 0)))
+  (is (thrown? Error (sqr :monkey))))
 
-(defconstrainedfn no-doc  [n]
-     :requires
-     (number? n)
-     (not (zero? n))
+(defconstrainedfn no-doc-sqr
+  [n]
+  :requires
+  (number? n)
+  (not (zero? n))
+  
+  :ensures
+  (pos? %)
 
-    :ensures
-     (pos? %)
-
-     :body
-     (* n n))
-
+  :body
+  (* n n))
 
 (deftest no-doc-cnstr-fn-test
-  (is (= 36 (no-doc  6)))
-  (is (= 36 (no-doc -6)))
-  (is (= 42 
-         (try (no-doc 0)
-              (catch Error e 42))))
-  (is (= 42 
-         (try (no-doc :a)
-             (catch Error e 42)))))
+  (is (= 36 (no-doc-sqr  6)))
+  (is (= 36 (no-doc-sqr -6)))
+  (is (thrown? Error (no-doc-sqr 0)))
+  (is (thrown? Error (no-doc-sqr :gibbon))))
 
 (deftest defconstrainedfn-test
   (multibody-cnstr-fn-test)
