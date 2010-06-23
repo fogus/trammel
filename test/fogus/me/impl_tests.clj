@@ -16,8 +16,8 @@
   (:use [clojure.test :only [deftest is]]))
 
 (def *expectations-table*
-     [{:expect '{:pre [(every? foo [x y]) (bar x)] :post [(baz %) (quux %)]}
-       :body   '(:requires (every? foo [x y]) (bar x) :ensures (baz %) (quux %))}
+     [{:expect '{:pre [(every? foo [x]) (bar x)] :post [(baz %) (quux %)]}
+       :body   '(:requires (every? foo [x]) (bar x) :ensures (baz %) (quux %))}
 
       {:expect '{:pre [(foo x) (bar x)] :post [(baz %) (quux %)]}
        :body   '(:requires (foo x) (bar x) :ensures (baz %) (quux %))}
@@ -41,6 +41,9 @@
 (deftest build-constraints-map-test
   (doseq [t *expectations-table*]
     (is (= (build-constraints-map (:body t)) (:expect t)))))
+
+(for [e *expectations-table*]
+  {:body (list '([x]) (:body e))})
 
 (deftest impl-test
   (build-constraints-map-test))

@@ -36,7 +36,23 @@
                   :ensures  :post)
             (vec cnstr)})))
 
-(defn build-contract [[[sig] expectations :as c]]
+(defn build-contract 
+  "Expects a list representing an arity-based expectation of the form:
+
+    (([x]) (:requires (foo x) :ensures (bar %)))
+
+   This form is then destructured to pull out the arglist `[x]` and the
+   contract expectation body (i.e. the constraints):
+
+    (:requires (foo x) :ensures (bar %))
+
+   It then uses this data to build another list reprsenting a specific arity body
+   for a higher-order function with attached pre- and post-conditions that directly 
+   calls the function passed in:
+
+    ([f x] {:pre [(foo x)] :post [(bar %)]} (f x))
+  "
+  [[[sig] expectations :as c]]
   (list 
     (into '[f] sig)
     (build-constraints-map expectations)
