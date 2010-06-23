@@ -1,6 +1,6 @@
 ;;; trammel.clj -- Contracts programming library for Clojure
 
-;; by Michael Fogus - http://fogus.me/fun/
+;; by Michael Fogus - <http://fogus.me/fun/trammel>
 ;; May 26, 2010
 
 ;; Copyright (c) Michael Fogus, 2010. All rights reserved.  The use
