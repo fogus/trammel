@@ -34,9 +34,7 @@
   (is (= 10 ((partial doubler-contract #(* 2 (+ %1 %2))) 2 3)))
   (is (= 10 ((partial doubler-contract #(+ %1 %1 %2 %2)) 2 3)))
   (is (= 10 ((partial doubler-contract #(* 2 %)) 5)))
-  (is (= 42 
-         (try ((partial doubler-contract #(* 3 (+ %1 %2))) 2 3)
-              (catch Error e 42)))))
+  (is (thrown? Error ((partial doubler-contract #(* 3 (+ %1 %2))) 2 3))))
 
 (deftest contract-test
   (doubler-contract-test))
