@@ -1,0 +1,15 @@
+---
+title: Empty Index Page
+in_menu: true
+routed_title: New webgen Website
+---
+## Welcome to *webgen*!
+
+This is just a place holder for the start page for your new website!
+
+You can start by adjusting the meta information for this page file and adding some real content and
+then adding some more page files!
+
+For more information about webgen have a look at the [documentation]!
+
+[documentation]: http://webgen.rubyforge.org/documentation/index.html
