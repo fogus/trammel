@@ -1,15 +1,17 @@
 ---
-title: Empty Index Page
-in_menu: true
-routed_title: New webgen Website
+title: Trammel - a quick example
 ---
-## Welcome to *webgen*!
 
-This is just a place holder for the start page for your new website!
+### example
 
-You can start by adjusting the meta information for this page file and adding some real content and
-then adding some more page files!
+<div id="gist-450297" class="gist">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">defconstrainedfn</span> <span class="nv">sqr</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="s">"Squares a number"</span></div><div class="line" id="LC3">&nbsp;&nbsp;<span class="p">[</span><span class="nv">n</span><span class="p">]</span></div><div class="line" id="LC4">&nbsp;&nbsp;<span class="nv">:requires</span></div><div class="line" id="LC5">&nbsp;&nbsp;<span class="p">(</span><span class="nf">number?</span> <span class="nv">n</span><span class="p">)</span></div><div class="line" id="LC6">&nbsp;&nbsp;<span class="p">(</span><span class="nb">not= </span><span class="mi">0</span> <span class="nv">n</span><span class="p">)</span></div><div class="line" id="LC7"><br/></div><div class="line" id="LC8">&nbsp;&nbsp;<span class="nv">:ensures</span></div><div class="line" id="LC9">&nbsp;&nbsp;<span class="p">(</span><span class="nb">pos? </span><span class="nv">%</span><span class="p">)</span></div><div class="line" id="LC10">&nbsp;&nbsp;</div><div class="line" id="LC11">&nbsp;&nbsp;<span class="nv">:body</span></div><div class="line" id="LC12">&nbsp;&nbsp;<span class="p">(</span><span class="nb">* </span><span class="nv">n</span> <span class="nv">n</span><span class="p">))</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
 
-For more information about webgen have a look at the [documentation]!
-
-[documentation]: http://webgen.rubyforge.org/documentation/index.html
+[learn more](/docs.html)...
