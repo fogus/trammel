@@ -2,3 +2,5 @@ lib
 ._*
 classes
 *.jar
+doc/site/out
+webgen.cache

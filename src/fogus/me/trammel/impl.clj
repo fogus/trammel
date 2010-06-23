@@ -13,11 +13,24 @@
 
 (ns fogus.me.trammel.impl)
 
-(defn build-constraints-map [expectations]
+(defn build-constraints-map
+  "Takes a list of the contract expectation bodies for each arity, of the form:
+
+    (:requires (foo x) (bar x) :ensures (baz %))
+
+   It then takes this form and builds a pre- and post-condition map of the form:
+
+    {:pre  [(foo x) (bar x)]
+     :post [(baz %)]}
+
+   At the moment this function expects that the constraint functions are explicitly
+   wrapped in a list with the argument(s) likewise explicit.
+  "
+  [expectations]
   (apply merge
          (for [[[dir] & [cnstr]] (->> expectations
                                       (partition-by #{:requires :ensures})
-                                      (partition 2))]
+                                      (partition 2))] 
            {(case dir
                   :requires :pre
                   :ensures  :post)
