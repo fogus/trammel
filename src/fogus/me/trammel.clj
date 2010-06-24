@@ -58,7 +58,7 @@
   (let [name (if (symbol? (first forms))
                (first forms) 
                (gensym))]
-    (list* 'fn name 
+    (list* `fn name 
       (collect-bodies 
        (if (symbol? (first forms))
          (rest forms)
@@ -70,9 +70,9 @@
    using `contract` as the use of `partial` may not work as implementation details change.
   "
   ([f] f)
-  ([f contract] (list 'partial contract f))
+  ([f contract] (list `partial contract f))
   ([f contract & more]
-     `(with-contracts (with-contracts ~f ~contract) ~@more)))
+     `(with-constraints (with-constraints ~f ~contract) ~@more)))
 
 (defmacro defcontract
   "Convenience function for defining a named contract.  Equivalent to `(def fc (contract ...))`"
