@@ -15,7 +15,7 @@
   (:use [fogus.me.trammel :only [contract]])
   (:use [clojure.test :only [deftest is]]))
 
-(def doubler-contract
+(def doubler-contract-full
      (contract doubler 
        [x]
        :requires
@@ -31,11 +31,54 @@
        (= (* 2 (+ x y)) %)))
 
 (deftest doubler-contract-test
-  (is (= 10 ((partial doubler-contract #(* 2 (+ %1 %2))) 2 3)))
-  (is (= 10 ((partial doubler-contract #(+ %1 %1 %2 %2)) 2 3)))
-  (is (= 10 ((partial doubler-contract #(* 2 %)) 5)))
-  (is (thrown? Error ((partial doubler-contract #(* 3 (+ %1 %2))) 2 3))))
+  (is (= 10 ((partial doubler-contract-full #(* 2 (+ %1 %2))) 2 3)))
+  (is (= 10 ((partial doubler-contract-full #(+ %1 %1 %2 %2)) 2 3)))
+  (is (= 10 ((partial doubler-contract-full #(* 2 %)) 5)))
+  (is (thrown? Error ((partial doubler-contract-full #(* 3 (+ %1 %2))) 2 3))))
+
+
+(def doubler-contract-arity1
+     (contract doubler 
+       [x]
+       :requires
+       (pos? x)
+       :ensures
+       (= (* 2 x) %)))
+
+(deftest doubler-contract-arity1-test
+  (is (= 10 ((partial doubler-contract-arity1 #(* 2 %)) 5)))
+  (is (= 10 ((partial doubler-contract-arity1 #(* 2 %)) 5)))
+  (is (thrown? Error ((partial doubler-contract-arity1 #(* 3 %)) 5)))
+  (is (thrown? Error ((partial doubler-contract-arity1 #(* 2 %)) -5))))
+
+
+(def doubler-contract-no-requires
+     (contract doubler 
+       [x]
+       :ensures
+       (= (* 2 x) %)))
+
+(deftest doubler-contract-no-requires-test
+  (is (= 10 ((partial doubler-contract-no-requires #(* 2 %)) 5)))
+  (is (= -10 ((partial doubler-contract-no-requires #(* 2 %)) -5)))
+  (is (thrown? Error ((partial doubler-contract-no-requires #(* 3 %)) 5))))
+
+
+(def doubler-contract-no-ensures
+     (contract doubler 
+       [x]
+       :requires
+       (pos? x)))
+
+(deftest doubler-contract-no-ensures-test
+  (is (= 10 ((partial doubler-contract-no-ensures #(* 2 %)) 5)))
+  (is (= 15 ((partial doubler-contract-no-ensures #(* 3 %)) 5)))
+  (is (thrown? Error ((partial doubler-contract-no-ensures #(* 2 %)) -5))))
+
 
 (deftest contract-test
-  (doubler-contract-test))
+  (doubler-contract-test)
+  (doubler-contract-arity1-test)
+  (doubler-contract-no-requires-test)
+  (doubler-contract-no-ensures-test))
 
