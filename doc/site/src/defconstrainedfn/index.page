@@ -1,0 +1,63 @@
+---
+title: Trammel - Isolated Unnamed Contracts
+---
+
+### defconstrainedfn 
+
+Defining a function with an associated contract is similar to the way that one [defines a regular Clojure function](http://richhickey.github.com/clojure/clojure.core-api.html#clojure.core/defn):
+
+<div id="gist-450297" class="gist">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">defconstrainedfn</span> <span class="nv">sqr</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="s">"Squares a number"</span></div><div class="line" id="LC3">&nbsp;&nbsp;<span class="p">[</span><span class="nv">n</span><span class="p">]</span></div><div class="line" id="LC4">&nbsp;&nbsp;<span class="nv">:requires</span></div><div class="line" id="LC5">&nbsp;&nbsp;<span class="p">(</span><span class="nf">number?</span> <span class="nv">n</span><span class="p">)</span></div><div class="line" id="LC6">&nbsp;&nbsp;<span class="p">(</span><span class="nb">not= </span><span class="mi">0</span> <span class="nv">n</span><span class="p">)</span></div><div class="line" id="LC7"><br/></div><div class="line" id="LC8">&nbsp;&nbsp;<span class="nv">:ensures</span></div><div class="line" id="LC9">&nbsp;&nbsp;<span class="p">(</span><span class="nb">pos? </span><span class="nv">%</span><span class="p">)</span></div><div class="line" id="LC9">&nbsp;&nbsp;<span class="p">(</span><span class="nb">number? </span><span class="nv">%</span><span class="p">)</span></div><div class="line" id="LC10">&nbsp;&nbsp;</div><div class="line" id="LC11">&nbsp;&nbsp;<span class="nv">:body</span></div><div class="line" id="LC12">&nbsp;&nbsp;<span class="p">(</span><span class="nb">* </span><span class="nv">n</span> <span class="nv">n</span><span class="p">))</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
+
+Simply put this definition states the following, from top to bottom:
+
+- Define a named function `sqr`
+- `sqr` takes a single argument `n`
+- `sqr` *requires* that `n` be a number not equal to zero
+- `sqr` *ensures* that it will return a positive number
+- `sqr` performs the action `(* n n)`
+
+You can see this in action below:
+
+<div id="gist-450297" class="gist">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">5</span><span class="p">)</span></div><div class="line" id="LC2"><span class="c1">;=&gt; 25</span></div><div class="line" id="LC3"><br/></div><div class="line" id="LC4"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">-5</span><span class="p">)</span></div><div class="line" id="LC5"><span class="c1">;=&gt; 25</span></div><div class="line" id="LC6"><br/></div><div class="line" id="LC7"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">0</span><span class="p">)</span></div><div class="line" id="LC8"><span class="c1">; java.lang.AssertionError: Assert failed: <br/>   (not (zero? n))</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
+
+As you might expect given the contract, the calls to `sqr` with `5` and `-5` succeed but the call with `0` fails.  The example of `sqr` is the simplest model for defining a function adhering to a contract.  However, you can also define a function allowing different argument arities, as seen below:
+
+<div id="gist-450297" class="gist">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">defconstrainedfn</span> <span class="nv">doubler</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="s">"Defines a function that doubles its input."</span></div><div class="line" id="LC3">&nbsp;&nbsp;<span class="p">([</span><span class="nv">n</span><span class="p">]</span></div><div class="line" id="LC4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">:requires</span></div><div class="line" id="LC5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nf">number?</span> <span class="nv">n</span><span class="p">)</span></div><div class="line" id="LC6">&nbsp;&nbsp;&nbsp;&nbsp;</div><div class="line" id="LC7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">:ensures</span></div><div class="line" id="LC8">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="nv">n</span><span class="p">)</span> <span class="nv">%</span><span class="p">)</span></div><div class="line" id="LC9"><br/></div><div class="line" id="LC10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">:body</span></div><div class="line" id="LC11">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="nv">n</span><span class="p">))</span></div><div class="line" id="LC12">&nbsp;&nbsp;&nbsp;&nbsp;</div><div class="line" id="LC13">&nbsp;&nbsp;<span class="p">([</span><span class="nv">x</span> <span class="nv">y</span><span class="p">]</span></div><div class="line" id="LC14">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">:requires</span></div><div class="line" id="LC15">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nb">every? </span><span class="nv">number?</span> <span class="p">[</span><span class="nv">x</span> <span class="nv">y</span><span class="p">])</span></div><div class="line" id="LC16">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div><div class="line" id="LC17">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">:ensures</span></div><div class="line" id="LC18">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nf">number?</span> <span class="nv">%</span><span class="p">)</span></div><div class="line" id="LC19">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="nv">y</span><span class="p">))</span> <span class="nv">%</span><span class="p">)</span></div><div class="line" id="LC20">&nbsp;&nbsp;</div><div class="line" id="LC21">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">:body</span></div><div class="line" id="LC22">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="nv">y</span><span class="p">))))</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
+
+The form of the contract for `doubler` is more involved, but its meaning is still straight-forward:
+
+* Define a function named `doubler` that takes either one or two arguments
+* The first form of `doubler` takes a single argument `n`
+    + `doubler` *requires* that `n` be a number
+    + `doubler` *ensures* that it returns the double of `n` -- which it does by executing `(* 2 n)`
+* The second form of `doubler` takes two arguments `x` and `y`
+    + `doubler` *requires* that `x` and `y` both be numbers
+    + `doubler` *ensures* that it returns the double of the sum of `x` and `y` -- which it does by executing `(* 2 (+ x y))`
+
+And that's all there is to it.
+
+[return to documentation](../docs.html)

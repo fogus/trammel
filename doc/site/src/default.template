@@ -17,7 +17,7 @@
 <body>
   <div id="rinich"> 
     <div class="log"> 
-      <h1><a href="#" title="/">Trammel</a></h1> 
+      <h1><a href="http://fogus.me/fun/trammel">Trammel</a></h1> 
       <div class="description">a contracts-programming library for <a href="http://clojure.org">Clojure</a></div>
      
       <div class="item"> 
@@ -34,6 +34,7 @@
         <webgen:block name="content"/>
       </div> 
 
+      <a class="button" href="http://clojars.org/trammel">clojars &rarr;</a>
       <a class="button" href="http://github.com/fogus/trammel">source code &rarr;</a>
       <a class="button" href="http://github.com/fogus/trammel/issues">tickets &rarr;</a>
       <a class="button" href="http://wiki.github.com/fogus/trammel">wiki &rarr;</a>

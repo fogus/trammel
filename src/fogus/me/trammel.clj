@@ -92,6 +92,7 @@
 
       :ensures
       (pos? %)
+      (number? %)
 
       :body
       (* n n))
