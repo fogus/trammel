@@ -2,16 +2,16 @@
 title: Trammel - contracts-programming
 ---
 
-Correctness
-===========
+**In progress...**
 
-Specification
--------------
+Correctness
+-----------
+
+### Specification
 
 > Correctness is a relative notion
 
-Consequences
-------------
+### Consequences
 
 1. Knowing its correct
 2. Gaining a deeper understanding of the problem
@@ -19,8 +19,7 @@ Consequences
 4. A basis for testing
 5. A basis for debugging
 
-Weak and Strong
----------------
+### Weak and Strong
 
 - weak pre
 - strong post
