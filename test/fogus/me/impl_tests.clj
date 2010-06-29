@@ -17,33 +17,29 @@
 
 (def *expectations-table*
      [{:expect '{:pre [(every? foo [x]) (bar x)] :post [(baz %) (quux %)]}
-       :body   '(:requires (every? foo [x]) (bar x) :ensures (baz %) (quux %))}
+       :body   '{:requires ((every? foo [x]) (bar x)) :ensures ((baz %) (quux %))}}
 
       {:expect '{:pre [(foo x) (bar x)] :post [(baz %) (quux %)]}
-       :body   '(:requires (foo x) (bar x) :ensures (baz %) (quux %))}
+       :body   '{:requires ((foo x) (bar x)) :ensures ((baz %) (quux %))}}
 
       {:expect '{:pre [(foo x) (bar x)] :post [(baz %)]}
-       :body   '(:requires (foo x) (bar x) :ensures (baz %))}
+       :body   '{:requires ((foo x) (bar x)) :ensures ((baz %))}}
 
       {:expect '{:pre [(foo x)] :post [(baz %)]}
-       :body   '(:requires (foo x) :ensures (baz %))}
+       :body   '{:requires ((foo x)) :ensures ((baz %))}}
 
       {:expect '{:post [(baz %)]}
-       :body   '(:ensures (baz %))}
+       :body   '{:ensures ((baz %))}}
 
       {:expect '{:pre [(foo x)]}
-       :body   '(:requires (foo x))}
+       :body   '{:requires ((foo x))}}
 
-      {:expect nil
-       :body   '()}
-      ])
+      {:expect {}
+       :body   {}}])
 
 (deftest build-constraints-map-test
   (doseq [t *expectations-table*]
     (is (= (build-constraints-map (:body t)) (:expect t)))))
-
-(for [e *expectations-table*]
-  {:body (list '([x]) (:body e))})
 
 (deftest impl-test
   (build-constraints-map-test))

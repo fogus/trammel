@@ -55,14 +55,15 @@
    found in this same library.
   "
   [& forms]
-  (let [name (if (symbol? (first forms))
-               (first forms) 
-               (gensym))]
-    (list* `fn name 
-      (collect-bodies 
-       (if (symbol? (first forms))
-         (rest forms)
-         forms)))))
+  (let [name (when (symbol? (first forms))
+               (first forms))
+        arity-maps (build-forms-map
+                    (map #(mapcat identity %) 
+                         (partition 2 (partition-by vector? (if name 
+                                                              (rest forms) 
+                                                              forms)))))]
+    (list* `fn (if name name (gensym))
+           (collect-bodies arity-maps))))
 
 (defmacro with-constraints
   "Takes a target function and a number of contracts and returns a function with the contracts

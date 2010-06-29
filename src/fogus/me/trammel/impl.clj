@@ -27,14 +27,11 @@
    wrapped in a list with the argument(s) likewise explicit.
   "
   [expectations]
-  (apply merge
-         (for [[[dir] & [cnstr]] (->> expectations
-                                      (partition-by #{:requires :ensures})
-                                      (partition 2))] 
-           {(case dir
-                  :requires :pre
-                  :ensures  :post)
-            (vec cnstr)})))
+  (merge {}
+         (when (:requires expectations)
+           {:pre (:requires expectations)})
+         (when (:ensures expectations)
+           {:post (:ensures expectations)})))
 
 (defn build-contract 
   "Expects a list representing an arity-based expectation of the form:
@@ -52,11 +49,12 @@
 
     ([f x] {:pre [(foo x)] :post [(bar %)]} (f x))
   "
-  [[[sig] expectations :as c]]
-  (list 
-    (into '[f] sig)
-    (build-constraints-map expectations)
-    (list* 'f sig)))
+  [arity-map]
+  (let [sig (first (keys arity-map))]
+    (list 
+     (into '[f] sig)
+     (build-constraints-map (first (vals arity-map)))
+     (list* 'f sig))))
 
 (defn collect-bodies
   "Where the magic happens.  Takes a list representing the idependent constraints for 
@@ -69,10 +67,10 @@
    the arity-based canstraints and pass each on to `build-contract` which then 
    returns the HOF body for each arity.
   "
-  [forms]
-  (for [body (->> (partition-by vector? forms)
-                  (partition 2))]
-    (build-contract body)))
+  [arity-maps]
+  (for [amap arity-maps]
+    (build-contract amap)))
+
 
 (defn build-forms-map
   "Works similarly to the `collect-bodies` function *except* for two differences:
