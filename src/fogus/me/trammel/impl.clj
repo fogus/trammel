@@ -103,8 +103,21 @@
    constraints and body for each arity.
   "
   [forms]
-  (for [[[e] & c] (map #(partition-by keyword? %) 
+  (for [[[args] & c] (map #(partition-by #{:requires :ensures :body} %) 
                        (if (vector? (first forms)) 
                          (list forms) 
                          forms))]
-    {e (apply hash-map c)}))
+    {args (let [m (apply array-map c)
+             ks (map first (keys m))
+             vs (vals m)]
+         (zipmap ks (map (fn [k vs]
+                           (map (fn [v]
+                                  (if (symbol? v)
+                                    (cond
+                                     (= k :requires) (apply list v args)
+                                     (= k :ensures)  (apply list v '[%])
+                                     :default        v)
+                                    v))
+                                vs))
+                         ks
+                         vs)))}))

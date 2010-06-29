@@ -113,9 +113,9 @@
                 (let [arg (first (keys bd))
                       b   (first (vals bd))]
                   (list* arg
-                         {:pre  (vec (b '(:requires)))
-                          :post (vec (b '(:ensures)))}
-                         (b '(:body)))))]
+                         {:pre  (vec (b :requires))
+                          :post (vec (b :ensures))}
+                         (b :body))))]
     `(defn ~name
        ~(if (:doc mdata) (:doc mdata) "")
        ~@body)))
