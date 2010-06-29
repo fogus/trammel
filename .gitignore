@@ -4,3 +4,4 @@ classes
 *.jar
 doc/site/out
 webgen.cache
+.DS_Store
