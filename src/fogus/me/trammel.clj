@@ -54,17 +54,25 @@
 
    While it's fine to use `partial` directly, it's better to use the `with-constraints` macro
    found in this same library.
+
+   If you're so inclined, you can inspect the terms of the contract via its metadata, keyed on
+   the keyword `:constraints`.
   "
   [& forms]
   (let [name (when (symbol? (first forms))
                (first forms))
         arity-maps (build-forms-map
-                    (map #(mapcat identity %) 
-                         (partition 2 (partition-by vector? (if name 
-                                                              (rest forms) 
-                                                              forms)))))]
-    (list* `fn (if name name (gensym))
-           (collect-bodies arity-maps))))
+                     (map #(mapcat identity %) 
+                          (partition 2
+                                     (partition-by
+                                        vector?
+                                        (if name
+                                          (rest forms)
+                                          forms)))))]
+    (list `with-meta 
+          (list* `fn (if name name (gensym))
+                 (collect-bodies arity-maps))
+          `{:constraints (into {} '~arity-maps)})))
 
 (defmacro with-constraints
   "Takes a target function and a number of contracts and returns a function with the contracts
