@@ -36,6 +36,3 @@
   (is (= 10 ((partial doubler-defcontract #(+ %1 %1 %2 %2)) 2 3)))
   (is (= 10 ((partial doubler-defcontract #(* 2 %)) 5)))
   (is (thrown? Error ((partial doubler-defcontract #(* 3 (+ %1 %2))) 2 3))))
-
-(deftest doubler-defcontract-tests
-  (doubler-defcontract-test))

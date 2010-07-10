@@ -120,3 +120,11 @@
     `(defn ~name
        ~(if (:doc mdata) (:doc mdata) "")
        ~@body)))
+
+(gen-class
+  :name trammel.PreconditionError
+  :extends AssertionError)
+
+(gen-class
+  :name trammel.PostconditionError
+  :extends AssertionError)

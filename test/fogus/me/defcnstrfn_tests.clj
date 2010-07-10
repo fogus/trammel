@@ -103,10 +103,3 @@
   (is (= 36 (sqr-isolated-fns -6)))
   (is (thrown? Error (sqr 0)))
   (is (thrown? Error (sqr :monkey))))
-
-
-(deftest defconstrainedfn-test
-  (multibody-cnstr-fn-test)
-  (singlebody-cnstr-fn-test)
-  (no-doc-cnstr-fn-test)
-  (sqr-isolated-fns-test))

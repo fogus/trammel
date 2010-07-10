@@ -134,15 +134,3 @@
   (is (= 10 ((partial doubler-contract-no-ensures-and-isolated-fn #(* 2 %)) 5)))
   (is (= 15 ((partial doubler-contract-no-ensures-and-isolated-fn #(* 3 %)) 5)))
   (is (thrown? Error ((partial doubler-contract-no-ensures-and-isolated-fn #(* 2 %)) -5))))
-
-
-(deftest contract-test
-  (doubler-contract-test)
-  (doubler-contract-arity1-test)
-  (doubler-contract-no-requires-test)
-  (doubler-contract-no-ensures-test)
-  (doubler-contract-full-and-isolated-fn-test)
-  (doubler-contract-arity1-and-isolated-fn-test)
-  (doubler-contract-no-requires-and-isolated-fn-test)
-  (doubler-contract-no-ensures-and-isolated-fn-test))
-
