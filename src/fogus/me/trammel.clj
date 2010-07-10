@@ -12,7 +12,8 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.trammel
-  (:use fogus.me.trammel.impl))
+  (:use fogus.me.trammel.impl)
+  (:use [fogus.me.trammel.macros :only [macrolet]]))
 
 (defmacro contract
   "The base contract form returning a higher-order function that can then be partially
