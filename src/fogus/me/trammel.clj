@@ -235,10 +235,25 @@
        ~(if (:doc mdata) (:doc mdata) "")
        ~@body)))
 
-(gen-class
-  :name trammel.PreconditionError
-  :extends AssertionError)
+(defmacro apply-contracts [& contracts]
+  (let [fn-names  (map first contracts)
+        contracts (for [c contracts] (list* `contract c))]
+    `(do
+       ~@(for [[n# c#] (zipmap fn-names contracts)]
+           (list `alter-var-root (list `var n#) 
+                 (list `fn '[f c] (list `with-constraints 'f 'c)) c#))
+       nil)))
 
-(gen-class
-  :name trammel.PostconditionError
-  :extends AssertionError)
+(comment
+  (defn sqr [n] (* n n))
+  (meta #'sqr)
+  (meta sqr)
+  (sqr 0)
+
+  (apply-contracts
+   [sqr [n] 
+    :requires number? (not= 0 n) 
+    :ensures pos? number?])
+
+  (sqr 0)
+)
