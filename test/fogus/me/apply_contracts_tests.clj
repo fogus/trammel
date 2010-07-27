@@ -15,7 +15,8 @@
   (:use [fogus.me.trammel :only [apply-contracts]])
   (:use [clojure.test :only [deftest is]]))
 
-(defn sqr [n] (* n n))
+(defn sqr [n]
+  (* n n))
 
 (apply-contracts
  [sqr [n] :requires number? (not= 0 n)
