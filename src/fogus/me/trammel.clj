@@ -257,3 +257,27 @@
 
   (sqr 0)
 )
+
+(defmacro defconstrainedrecord
+  [name slots & etc]s
+  (let [fields   (->> slots (partition 2) (map first) vec)
+        defaults (->> slots (partition 2) (map second))]
+    `(do
+      (defrecord ~name
+         ~fields
+         )
+       (defconstrainedfn ~(symbol (str "new-" name))
+         [& {:keys ~fields :as kwargs#}]
+         :body
+         (-> (~(symbol (str name \.)) ~@defaults)
+             (merge kwargs#))
+         ~@etc)
+       ~name)))
+
+(comment
+  (defconstrainedrecord Foo [a b]
+    :requires (every? number? [a b])
+    :body
+    Object
+    (toString [this] (str "record Foo has " a " and " b)))
+)
