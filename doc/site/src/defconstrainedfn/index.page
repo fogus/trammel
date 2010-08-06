@@ -6,7 +6,7 @@ title: Trammel - Isolated Unnamed Contracts
 
 Defining a function with an associated contract is similar to the way that one [defines a regular Clojure function](http://richhickey.github.com/clojure/clojure.core-api.html#clojure.core/defn):
 
-<div id="gist-450297" class="gist">
+<div class="gist">
      <div class="gist-file">
         <div class="gist-data gist-syntax">
            <div class="gist-highlight">

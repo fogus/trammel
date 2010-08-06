@@ -8,7 +8,8 @@ Trammel provides a set of functions used to ease the inclusion of [contracts-pro
 to providing a DSL for defining functions that adhere to a specific contract, Trammel provides a way to define isolated contracts that can later be applied to 
 existing functions at runtime.  Below you will find a more information on both approaches to contracts:
 
+ - [Applying Contracts to Existing Functions](apply-contracts)
  - [Defining Constrained Functions](defconstrainedfn/)
- - [Defining Isolated Unnamed Contracts](contract/)   (todo)
- - [Defining Isolated Named Contracts](defcontract/)    (todo)
- - [Applying Contracts at Runtime](with-constraints/)    (todo)
+ - [Defining Isolated Unnamed Contracts](contract/)
+ - [Defining Isolated Named Contracts](defcontract/)
+ - [Applying Contracts Manually](with-constraints/)

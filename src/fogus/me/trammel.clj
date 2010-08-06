@@ -101,24 +101,24 @@
    constraints and body for each arity.
   "
   [forms]
-  (for [[[args] & c] (map #(partition-by #{:requires :ensures :body} %) 
+  (for [[[args] & c] (map #(partition-by #{:requires :ensures :body} %)
                        (if (vector? (first forms)) 
                          (list forms) 
                          forms))]
     {args (let [m (apply array-map c)
-             ks (map first (keys m))
-             vs (vals m)]
-         (zipmap ks (map (fn [k vs]
-                           (map (fn [v]
-                                  (if (symbol? v)
-                                    (cond
-                                     (= k :requires) (apply list v args)
-                                     (= k :ensures)  (apply list v '[%])
-                                     :default        v)
-                                    v))
-                                vs))
-                         ks
-                         vs)))}))
+                ks (map first (keys m))
+                vs (vals m)]
+            (zipmap ks (map (fn [k vs]
+                              (map (fn [v]
+                                     (if (symbol? v)
+                                       (cond
+                                        (= k :requires) (apply list v args)
+                                        (= k :ensures)  (apply list v '[%])
+                                        :default        v)
+                                       v))
+                                   vs))
+                            ks
+                            vs)))}))
 
 (defmacro contract
   "The base contract form returning a higher-order function that can then be partially
@@ -167,13 +167,13 @@
   (let [name (when (symbol? (first forms))
                (first forms))
         arity-maps (build-forms-map
-                     (map #(mapcat identity %) 
-                          (partition 2
-                                     (partition-by
-                                        vector?
-                                        (if name
-                                          (rest forms)
-                                          forms)))))]
+                    (map #(mapcat identity %) 
+                         (partition 2
+                                    (partition-by
+                                     vector?
+                                     (if name
+                                       (rest forms)
+                                       forms)))))]
     (list `with-meta 
           (list* `fn (if name name (gensym))
                  (collect-bodies arity-maps))
@@ -237,28 +237,15 @@
 
 (defmacro apply-contracts [& contracts]
   (let [fn-names  (map first contracts)
-        contracts (for [c contracts] (list* `contract c))]
+        contracts (for [c contracts] (if (vector? (second c)) (list* `contract c) (second c)))]
     `(do
        ~@(for [[n# c#] (zipmap fn-names contracts)]
            (list `alter-var-root (list `var n#) 
                  (list `fn '[f c] (list `with-constraints 'f 'c)) c#))
        nil)))
 
-(comment
-  (defn sqr [n] (* n n))
-  (meta #'sqr)
-  (meta sqr)
-  (sqr 0)
-
-  (apply-contracts
-   [sqr [n] 
-    :requires number? (not= 0 n) 
-    :ensures pos? number?])
-
-  (sqr 0)
-)
-
 (defmacro defconstrainedrecord
+  "not yet working. do not attempt to use."
   [name slots & etc]
   (let [fields   (->> slots (partition 2) (map first) vec)
         defaults (->> slots (partition 2) (map second))]
