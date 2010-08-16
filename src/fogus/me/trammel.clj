@@ -248,23 +248,37 @@
   "not yet working. do not attempt to use."
   [name slots & etc]
   (let [fields   (->> slots (partition 2) (map first) vec)
-        defaults (->> slots (partition 2) (map second))]
+        defaults (->> slots (partition 2) (map second))
+        fmap     (first (build-forms-map (list* '[] etc)))
+        body     (:body (fmap []))
+        reqs     (:requires (fmap []) '(()))
+        ens      (:ensures (fmap []) '(()))]
     `(do
-      (defrecord ~name
+       (defrecord ~name
          ~fields
-         )
+         ~@body)
        (defconstrainedfn ~(symbol (str "new-" name))
          [& {:keys ~fields :as kwargs#}]
+         :requires ~@reqs
+         :ensures  ~@ens
          :body
          (-> (~(symbol (str name \.)) ~@defaults)
-             (merge kwargs#))
-         ~@etc)
+             (merge kwargs#)))
        ~name)))
 
 (comment
-  (defconstrainedrecord Foo [a b]
+  (defconstrainedrecord Foo [a 1 b 2]
     :requires (every? number? [a b])
     :body
     Object
     (toString [this] (str "record Foo has " a " and " b)))
+
+  (str (Foo. 3 4))
+  (str (new-Foo :a 3 :b 5))
+
+  (macroexpand '(defconstrainedrecord Foo [a b]
+    :requires (every? number? [a b])
+    :body
+    Object
+    (toString [this] (str "record Foo has " a " and " b))))
 )
