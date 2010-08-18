@@ -29,7 +29,7 @@
 
             '([n] [pos?])])
 
-(defn build-pre-post [cnstr]
+(defn build-pre-post-map [cnstr]
   (let [[L M R] (partition-by #{'=>} cnstr)]
     {:pre  (when (not= L '(=>)) L)
      :post (if (= L '(=>)) M R)}))
@@ -43,8 +43,10 @@
 
 (defn build-map [args cnstr]
   [args 
-   (manip-map (partial funcify args) 
-              [:pre :post] 
-              (build-pre-post cnstr))])
+   (manip-map (partial funcify '[%])
+             [:post]
+             (manip-map (partial funcify args) 
+                        [:pre] 
+                        (build-pre-post-map cnstr)))])
 
 (map (fn [[a c]] (build-map a c)) (take 2 tests))
