@@ -20,7 +20,7 @@
 
 (defn- funcify [args cnstr]
   (vec (map (fn [e]
-              (if (symbol? e)
+              (if (or (symbol? e) (keyword? e))
                 (list* e args)
                 e)) 
             cnstr)))
@@ -34,7 +34,7 @@
 (defn- build-contract 
   [cnstr]
   (let [[args pre-post-map] cnstr]
-    (list (into '[f] args)
+    (list (into '(f) args)
           pre-post-map
           (list* 'f args))))
 
@@ -55,3 +55,27 @@
   ([f c] (partial c f))
   ([f c & more]
      (apply with-constraints (with-constraints f c) more)))
+
+
+(defmacro apply-contracts [& contracts]
+  (let [fn-names  (map first contracts)
+        contracts (for [c contracts] (if (vector? (second c)) (list* `contract c) (second c)))]
+    `(do
+      ~@(for [[n# c#] (zipmap fn-names contracts)]
+          (list `alter-var-root (list `var n#) 
+                (list `fn '[f c] (list `with-constraints 'f 'c)) c#))
+      nil)))
+
+(comment
+(defn sqr [n]
+  (* n n))
+
+(apply-contracts [sqr [n] number? (not= 0 n) => pos? number?])
+)
+
+
+;; constraint functions and multimethods
+
+(def all-numbers?  #(every? number? %))
+(def all-positive? #(and (all-numbers? %) (every? pos? %)))
+(def all-negative? #(and (all-numbers? %) (every? (complement pos?) %)))
