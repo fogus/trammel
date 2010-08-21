@@ -34,12 +34,13 @@
 (defn- build-contract 
   [cnstr]
   (let [[args pre-post-map] cnstr]
-    (list (into '(f) args)
+    (list (into '[f] args)
           pre-post-map
           (list* 'f args))))
 
 (defmacro contract
   [name docstring & constraints]
+  (println name docstring constraints)
   (let [raw-cnstr   (->> (partition-by vector? constraints) 
                          (partition 2))
         arity-cnstr (for [[[a] c] raw-cnstr]
@@ -56,22 +57,17 @@
   ([f c & more]
      (apply with-constraints (with-constraints f c) more)))
 
-
-(defmacro apply-contracts [& contracts]
+(defmacro provide-contracts [& contracts]
   (let [fn-names  (map first contracts)
-        contracts (for [c contracts] (if (vector? (second c)) (list* `contract c) (second c)))]
+        contracts (for [[n ds & more] contracts] 
+                    (if (vector? (first more)) 
+                      (list* `contract n ds more) 
+                      (first more)))]
     `(do
       ~@(for [[n# c#] (zipmap fn-names contracts)]
           (list `alter-var-root (list `var n#) 
                 (list `fn '[f c] (list `with-constraints 'f 'c)) c#))
       nil)))
-
-(comment
-(defn sqr [n]
-  (* n n))
-
-(apply-contracts [sqr [n] number? (not= 0 n) => pos? number?])
-)
 
 
 ;; constraint functions and multimethods
