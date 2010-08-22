@@ -69,6 +69,25 @@
                 (list `fn '[f c] (list `with-constraints 'f 'c)) c#))
       nil)))
 
+(defmacro defconstrainedfn
+  [name & body]
+  (let [mdata (if (string? (first body))
+                {:doc (first body)}
+                {})
+        body  (if (:doc mdata)
+                (next body)
+                body)
+        body  (if (vector? (first body))
+                (list body)
+                body)
+        body  (for [[args cnstr & bd] body]
+                (list* args
+                       (second (build-constraints-map args cnstr))
+                       bd))]
+    `(defn ~name
+       ~(if (:doc mdata) (:doc mdata) "")
+       ~@body)))
+
 
 ;; constraint functions and multimethods
 

@@ -245,7 +245,6 @@
        nil)))
 
 (defmacro defconstrainedrecord
-  "not yet working. do not attempt to use."
   [name slots & etc]
   (let [fields   (->> slots (partition 2) (map first) vec)
         defaults (->> slots (partition 2) (map second))
