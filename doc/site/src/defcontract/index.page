@@ -2,7 +2,7 @@
 title: Trammel - Defining Isolated Named Contracts
 ---
 
-The [`contract`](../contract/) macro is the lowest level construct provided by Trammel, but it is not likely to be broadly useful given that it defines anonymous contracts.  However, you might find the `defcontract` macro much more agreeable, especially in concert with [`with-constraints`](../with-constraints/) and [`apply-contracts`](../apply-contracts/):
+The [`contract`](../contract/) macro is the lowest level construct provided by Trammel, but it is not likely to be broadly useful given that it defines anonymous contracts.  However, you might find the `defcontract` macro much more agreeable, especially in concert with [`with-constraints`](../with-constraints/) and [`provide-contracts`](../provide-contracts/):
 
 <div class="gist">
      <div class="gist-file">
