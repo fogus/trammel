@@ -8,7 +8,7 @@ The [`contract`](../contract/) macro is the lowest level construct provided by T
      <div class="gist-file">
         <div class="gist-data gist-syntax">
            <div class="gist-highlight">
-<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">defcontract</span> <span class="nv">sqr-contract</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="p">[</span><span class="nv">n</span><span class="p">]</span></div><div class="line" id="LC3">&nbsp;&nbsp;<span class="nv">:requires</span> <span class="nv">number?</span> <span class="p">(</span><span class="nb">not= </span><span class="mi">0</span> <span class="nv">n</span><span class="p">)</span></div><div class="line" id="LC4">&nbsp;&nbsp;<span class="nv">:ensures</span> <span class="nv">pos?</span> <span class="nv">number?</span><span class="p">)</span></div></pre>
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">defcontract</span> <span class="nv">sqr-contract</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="s">"Defines the constraints for squaring"</span></div><div class="line" id="LC3">&nbsp;&nbsp;<span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">[</span><span class="nv">number?</span> <span class="p">(</span><span class="nb">not= </span><span class="mi">0</span> <span class="nv">n</span><span class="p">)</span> <span class="nv">=&gt;</span> <span class="nv">pos?</span> <span class="nv">number?</span><span class="p">])</span></div></pre>
            </div>
        </div>
      </div>
