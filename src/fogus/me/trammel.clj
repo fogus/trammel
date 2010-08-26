@@ -18,6 +18,7 @@
 (def all-numbers?  #(every? number? %))
 (def all-positive? #(and (all-numbers? %) (every? pos? %)))
 (def all-negative? #(and (all-numbers? %) (every? (complement pos?) %)))
+(defn anything [& _] true)
 
 ;; base functions and macros
 
@@ -136,7 +137,9 @@
           `{:constraints (into {} '~arity-cnstr)})))
 
 (defn with-constraints
-  "Takes a target function and a number of contracts and returns a function with the contracts
+  "A contract combinator.
+   
+   Takes a target function and a number of contracts and returns a function with the contracts
    applied to the original.  This is the preferred way to apply a contract previously created
    using `contract` as the use of `partial` may not work as implementation details change.
   "

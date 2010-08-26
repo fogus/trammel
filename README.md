@@ -64,7 +64,8 @@ Trammel is in its infancy but I think that I have a nice springboard for experim
  11. Modify macros to also allow regular Clojure constraint maps
  12. Reference contracts
  13. `or`
- 14. 
+ 14. Make the `anything` constraint cheap (elimination)
+ 15. 
 
 If you have any ideas or interesting references then I would be happy to discuss.
 
@@ -81,3 +82,5 @@ References
 - [Design by contract for Ruby](http://split-s.blogspot.com/2006/02/design-by-contract-for-ruby.html)
 - [Contracts in Racket (A Scheme Descendent)](http://pre.plt-scheme.org/docs/html/guide/contracts.html)
 - [A Proof Engine for Eiffel](http://tecomp.sourceforge.net/index.php?file=doc/papers/proof/engine)
+- *How to Deign Programs* by Matthias Felleisen, Robert Bruce Findler, Matthew Flatt, and Shriram Krishnamurthi [here](http://www.htdp.org/2003-09-26/Book/)
+- 
