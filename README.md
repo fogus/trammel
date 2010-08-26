@@ -1,6 +1,8 @@
 Trammel
 =======
 
+[Contracts programming](http://c2.com/cgi/wiki?DesignByContract) for Clojure.
+
 - [Official documentation and usage scenarios](http://fogus.me/fun/trammel/)
 - [Original announcement](http://blog.fogus.me/2010/05/25/trammel-contracts-programming-for-clojure/) (*syntax has evolved since then*)
 
@@ -54,10 +56,10 @@ Trammel is in its infancy but I think that I have a nice springboard for experim
   3. Distinct pre and post exceptions
   4. An all-in-one defn/contract           [done](http://is.gd/cCsvF)
   5. Study the heck out of everything Bertrand Meyer ever wrote (in progress)
-  6. Choose better names than `:requires` and `:ensures`
-  7. Type invariants
+  6. Choose better names than `:requires` and `:ensures` [done](http://github.com/fogus/trammel/commit/7427fac79f813dd2877fdb4c23e012f76aa9fb8e)
+  7. Type invariants (in progress)
   8. `defconstraint` -- with ability to relax requires and tighten ensures
-  9. Implicit arguments for isolated function.
+  9. Implicit arguments for isolated function. (in progress)
  10. Study the heck out of Racket Scheme (in progress)
 
 If you have any ideas or interesting references then I would be happy to discuss.
