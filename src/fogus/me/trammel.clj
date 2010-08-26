@@ -150,22 +150,11 @@
 
     (defconstrainedfn sqr
       \"Squares a number\"
-      [n]
-      :requires
-      (number? n)
-      (not= 0 n)
-
-      :ensures
-      (pos? %)
-      (number? %)
-
-      :body
+      [n] [number? (not= 0 n) => pos? number?]
       (* n n))
 
-   The order of the `:requires`, `:ensures`, and `:body` sections are not relevant, but it's likely a
-   good idea to maintain consistency.  Like the `contract` macro, multiple arity functions can be defined
-   where each argument vector is followed by the relevent arity expectations.  The `:body` element is the
-   only required section for each defined function arity.
+   Like the `contract` macro, multiple arity functions can be defined where each argument vector 
+   is immediately followed by the relevent arity expectations.
   "
   [name & body]
   (let [mdata (if (string? (first body))
@@ -174,13 +163,13 @@
         body  (if (:doc mdata)
                 (next body)
                 body)
-        body  (for [bd (build-forms-map body)] 
-                (let [arg (first (keys bd))
-                      b   (first (vals bd))]
-                  (list* arg
-                         {:pre  (vec (b :requires))
-                          :post (vec (b :ensures))}
-                         (b :body))))]
+        body  (if (vector? (first body))
+                (list body)
+                body)
+        body  (for [[args cnstr & bd] body]
+                (list* args
+                       (second (build-constraints-map args cnstr))
+                       bd))]
     `(defn ~name
        ~(if (:doc mdata) (:doc mdata) "")
        ~@body)))
