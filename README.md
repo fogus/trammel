@@ -62,6 +62,9 @@ Trammel is in its infancy but I think that I have a nice springboard for experim
   9. Implicit arguments for isolated function. (in progress)
  10. Study the heck out of Racket Scheme (in progress)
  11. Modify macros to also allow regular Clojure constraint maps
+ 12. Reference contracts
+ 13. `or`
+ 14. 
 
 If you have any ideas or interesting references then I would be happy to discuss.
 
