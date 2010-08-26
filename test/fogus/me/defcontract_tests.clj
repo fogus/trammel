@@ -21,7 +21,7 @@
   [n] [(number? n) => (= % (* 2 n))]
   [x y] [(every? number? [x y]) => (= (* 2 (+ x y)) %)])
 
-#_(deftest doubler-defcontract-test
+(deftest doubler-defcontract-test
   (is (= 10 ((partial doubler-defcontract #(* 2 (+ %1 %2))) 2 3)))
   (is (= 10 ((partial doubler-defcontract #(+ %1 %1 %2 %2)) 2 3)))
   (is (= 10 ((partial doubler-defcontract #(* 2 %)) 5)))

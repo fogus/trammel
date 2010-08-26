@@ -126,9 +126,8 @@
    the keyword `:constraints`.
   "
   [name docstring & constraints]
-  (let [raw-cnstr   (->> (partition-by vector? constraints) 
-                         (partition 2))
-        arity-cnstr (for [[[a] c] raw-cnstr]
+  (let [raw-cnstr   (partition 2 constraints)
+        arity-cnstr (for [[a c] raw-cnstr]
                       (build-constraints-map a c))
         fn-arities  (for [b arity-cnstr]
                       (build-contract b))]

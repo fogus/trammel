@@ -61,5 +61,5 @@
 (deftest sqr-isolated-fns-test
   (is (= 36 (sqr-isolated-fns  6)))
   (is (= 36 (sqr-isolated-fns -6)))
-  (is (thrown? Error (sqr 0)))
-  (is (thrown? Error (sqr :monkey))))
+  (is (thrown? Error (sqr-isolated-fns 0)))
+  (is (thrown? Error (sqr-isolated-fns :monkey))))
