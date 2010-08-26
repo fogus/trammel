@@ -13,6 +13,14 @@
 
 (ns fogus.me.trammel)
 
+;; constraint functions and multimethods
+
+(def all-numbers?  #(every? number? %))
+(def all-positive? #(and (all-numbers? %) (every? pos? %)))
+(def all-negative? #(and (all-numbers? %) (every? (complement pos?) %)))
+
+;; base functions and macros
+
 (defn- keys-apply [f ks m]
   "Takes a function, a set of keys, and a map and applies the function to the map on the given keys.  
    A new map of the results of the function applied to the keyed entries is returned."
