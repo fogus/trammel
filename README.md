@@ -1,48 +1,53 @@
 Trammel
 =======
 
-I was planning on making a grand announcement about the launch of my Clojure contracts programming library [Trammel](http://fogus.me/fun/trammel), but got totally upstaged by something called [Clojure/core](http://clojure.com). ^_^
+- [Official documentation and usage scenarios](http://fogus.me/fun/trammel/)
+- [Original announcement](http://blog.fogus.me/2010/05/25/trammel-contracts-programming-for-clojure/) (*syntax has evolved since then*)
 
-While researching for [The Joy of Clojure](http://joyofclojure.com) I eventually came by a few books about the [Eiffel Programming Language](http://archive.eiffel.com/eiffel/nutshell.html) and was blown away by its notion of [design by contract](http://en.wikipedia.org/wiki/Eiffel_\(programming_language\)#Design_by_Contract)&copy;. I've posted before about Clojure's [pre- and post-conditions](http://blog.fogus.me/2009/12/21/clojures-pre-and-post/) but didn't take it to the next step until chapter 7 of JoC -- which forms the basis for Trammel.  At the moment I have only the base form `contract` returning a higher-order function that can then be partially applied to an existing function to "apply" a contract:
+Example
+-------
 
-    (def cheese-contract
-      (contract cheese
-        [x]
-        :requires 
-        (= x :cheese)
+    (use '[fogus.me.trammel :only [provide-contracts]])
     
-        :ensures
-        (string? %)
-        (= % "cheese")
+    (defn sqr [n] (* n n))
     
-        [x y]
-        :requires
-        (every? #(= :cheese %) [x y])
+    (sqr 10)
+    ;=> 100
+    (sqr 0)
+    ;=> 0
     
-        :ensures 
-        (string? %)))
+    (provide-contracts 
+      [sqr "Constraints for squaring" 
+        [x] [number? (not= 0 x) => number? pos?]])
     
-    (def do-something 
-      (with-constraints
-        (fn 
-          ([x] (name x))
-          ([x y] (str x y)))
-        cheese-contract))
-    
-    (do-something :cheese)
-    ;=> "cheese"
-    
-    (do-something :foo)
-    ; java.lang.AssertionError: Assert failed: (= x :cheese)
-    
-    (do-something :cheese :cheese)
-    ;=> ":cheese:cheese"
-    
-    (do-something :cheese :ham)
-    ; java.lang.AssertionError: Assert failed: 
-    ;    (every? (fn* [p1__6079#] (= :cheese p1__6079#)) [x y])
+    (sqr 10)
+    ;=> 100
+    (sqr 0)
+    ; java.lang.AssertionError: Assert failed: (not= 0 x)
 
-Anyway, Trammel is in its infancy but I think that I have a nice springboard for experimentation and expansion, including:
+Getting
+-------
+
+### Leiningen
+
+Modify your [Leiningen](http://github.com/technomancy/leiningen) dependencies to include Trammel:
+
+    :dependencies [[trammel "0.3.0"] ...]    
+
+### Maven
+
+Add the following to your `pom.xml` file:
+
+    <dependency>
+      <groupId>trammel</groupId>
+      <artifactId>trammel</artifactId>
+      <version>0.3.0</version>
+    </dependency>
+
+Notes
+-----
+
+Trammel is in its infancy but I think that I have a nice springboard for experimentation and expansion, including:
 
   1. Abstracting out the use of `partial`  [done](http://github.com/fogus/trammel/commit/2f03a992d00b97c1f7e354fff32174b4c1edd1d8)
   2. Better error messages
@@ -53,11 +58,9 @@ Anyway, Trammel is in its infancy but I think that I have a nice springboard for
   7. Type invariants
   8. `defconstraint` -- with ability to relax requires and tighten ensures
   9. Implicit arguments for isolated function.
+ 10. Study the heck out of Racket Scheme (in progress)
 
 If you have any ideas or interesting references then I would be happy to discuss.
-
-:f
-
 
 References
 ----------
