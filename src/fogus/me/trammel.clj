@@ -174,14 +174,17 @@
        ~(if (:doc mdata) (:doc mdata) "")
        ~@body)))
 
-(defmacro apply-contracts [& contracts]
+(defmacro provide-contracts [& contracts]
   (let [fn-names  (map first contracts)
-        contracts (for [c contracts] (if (vector? (second c)) (list* `contract c) (second c)))]
+        contracts (for [[n ds & more] contracts] 
+                    (if (vector? (first more)) 
+                      (list* `contract n ds more) 
+                      (first more)))]
     `(do
-       ~@(for [[n# c#] (zipmap fn-names contracts)]
-           (list `alter-var-root (list `var n#) 
-                 (list `fn '[f c] (list `with-constraints 'f 'c)) c#))
-       nil)))
+      ~@(for [[n# c#] (zipmap fn-names contracts)]
+          (list `alter-var-root (list `var n#) 
+                (list `fn '[f c] (list `with-constraints 'f 'c)) c#))
+      nil)))
 
 (defmacro defconstrainedrecord
   [name slots & etc]
