@@ -13,25 +13,60 @@
 
 (ns fogus.me.trammel)
 
-(defn build-constraints-map
-  "Takes a list of the contract expectation bodies for each arity, of the form:
+(defn- keys-apply [f ks m]
+  "Takes a function, a set of keys, and a map and applies the function to the map on the given keys.  
+   A new map of the results of the function applied to the keyed entries is returned."
+  (let [only (select-keys m ks)] 
+    (zipmap (keys only) (map f (vals only)))))
 
-    (:requires (foo x) (bar x) :ensures (baz %))
+(defn- manip-map [f ks m]
+  "Takes a function, a set of keys, and a map and applies the function to the map on the given keys.  
+   A modified version of the original map is returned with the results of the function applied to each 
+   keyed entry."
+  (conj m (keys-apply f ks m)))
+
+(defn- build-pre-post-map
+  "Takes a vector of the form `[pre ... => post ...]` and infers the expectations described
+   therein.  The map that comes out will look like Clojure's default pre- and post-conditions
+   map.
+  "
+  [cnstr]
+  (let [[L M R] (partition-by #{'=>} cnstr)]
+    {:pre  (when (not= L '(=>)) L)
+     :post (if (= L '(=>)) M R)}))
+
+(defn- funcify
+  "Performs the *magic* of the Trammel syntax.  That is, it currently identifies isolated functions and
+   wraps them in a list with the appropriate args.  It also recognizes keywords and does the same under 
+   the assumption that a map access is required.  It then returns the vector of calls expected by the
+   Clojure pre- and post-conditions map."
+  [args cnstr]
+  (vec (map (fn [e]
+              (if (or (symbol? e) (keyword? e))
+                (list* e args)
+                e)) 
+            cnstr)))
+
+(defn- build-constraints-map 
+  "Takes the corresponding arglist and a vector of the contract expectations, the latter of which looks 
+   like any of the following:
+
+    [(= 0 _)] or [number?] ;; lists only the pre-condition
+    [number? => number?]   ;; lists a pre- and post-condition
+    [=> number?]           ;; lists only a post-condition
+    [foo bar => baz]       ;; lists a pre- and post-condition
 
    It then takes this form and builds a pre- and post-condition map of the form:
 
     {:pre  [(foo x) (bar x)]
      :post [(baz %)]}
-
-   At the moment this function expects that the constraint functions are explicitly
-   wrapped in a list with the argument(s) likewise explicit.
   "
-  [expectations]
-  (merge {}
-         (when (:requires expectations)
-           {:pre (:requires expectations)})
-         (when (:ensures expectations)
-           {:post (:ensures expectations)})))
+  [args cnstr]
+  [args 
+   (->> (build-pre-post-map cnstr)
+        (manip-map (partial funcify '[%]) [:post])
+        (manip-map (partial funcify args) [:pre]))])
+
 
 (defn build-contract 
   "Expects a list representing an arity-based expectation of the form:
