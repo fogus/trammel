@@ -61,6 +61,7 @@ Trammel is in its infancy but I think that I have a nice springboard for experim
   8. `defconstraint` -- with ability to relax requires and tighten ensures
   9. Implicit arguments for isolated function. (in progress)
  10. Study the heck out of Racket Scheme (in progress)
+ 11. Modify macros to also allow regular Clojure constraint maps
 
 If you have any ideas or interesting references then I would be happy to discuss.
 
