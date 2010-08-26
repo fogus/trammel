@@ -37,6 +37,6 @@
       {:expect {}
        :body   {}}])
 
-(deftest build-constraints-map-test
+#_(deftest build-constraints-map-test
   (doseq [t *expectations-table*]
     (is (= (build-constraints-map (:body t)) (:expect t)))))

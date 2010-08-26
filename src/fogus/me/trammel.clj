@@ -126,7 +126,6 @@
    the keyword `:constraints`.
   "
   [name docstring & constraints]
-  (println name docstring constraints)
   (let [raw-cnstr   (->> (partition-by vector? constraints) 
                          (partition 2))
         arity-cnstr (for [[[a] c] raw-cnstr]
@@ -151,7 +150,7 @@
   "Convenience macro for defining a named contract.  Equivalent to `(def fc (contract ...))`"
   [name docstring & forms]
   `(def ~name
-     (contract ~name ~docstring ~@forms)))
+     (contract ~(symbol (str name "-impl")) ~docstring ~@forms)))
 
 (defmacro defconstrainedfn
   "Defines a function using the `contract` scheme with an additional `:body` element.
@@ -194,7 +193,7 @@
                 (list `fn '[f c] (list `with-constraints 'f 'c)) c#))
       nil)))
 
-(defmacro defconstrainedrecord
+#_(defmacro defconstrainedrecord
   [name slots & etc]
   (let [fields   (->> slots (partition 2) (map first) vec)
         defaults (->> slots (partition 2) (map second))

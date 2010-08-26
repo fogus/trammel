@@ -16,19 +16,11 @@
   (:use [clojure.test :only [deftest is]]))
 
 (def doubler-contract-full
-     (contract doubler 
-       [x]
-       :requires
-       (pos? x)
-       :ensures
-       (= (* 2 x) %)
+     (contract doubler
+       "Test"
+       [x] [(pos? x) => (= (* 2 x) %)]
 
-       [x y]
-       :requires
-       (pos? x)
-       (pos? y)
-       :ensures
-       (= (* 2 (+ x y)) %)))
+       [x y] [(pos? x) (pos? y) => (= (* 2 (+ x y)) %)]))
 
 (deftest doubler-contract-test
   (is (= 10 ((partial doubler-contract-full #(* 2 (+ %1 %2))) 2 3)))
@@ -38,18 +30,10 @@
 
 (def doubler-contract-full-and-isolated-fn
      (contract doubler 
-       [x]
-       :requires
-       pos?
-       :ensures
-       (= (* 2 x) %)
+       "Test"
+       [x] [pos? => (= (* 2 x) %)]
 
-       [x y]
-       :requires
-       (pos? x)
-       (pos? y)
-       :ensures
-       (= (* 2 (+ x y)) %)))
+       [x y] [(pos? x) (pos? y) => (= (* 2 (+ x y)) %)]))
 
 (deftest doubler-contract-full-and-isolated-fn-test
   (is (= 10 ((partial doubler-contract-full-and-isolated-fn #(* 2 (+ %1 %2))) 2 3)))
@@ -60,11 +44,8 @@
 
 (def doubler-contract-arity1
      (contract doubler 
-       [x]
-       :requires
-       (pos? x)
-       :ensures
-       (= (* 2 x) %)))
+       "Test"
+       [x] [(pos? x) => (= (* 2 x) %)]))
 
 (deftest doubler-contract-arity1-test
   (is (= 10 ((partial doubler-contract-arity1 #(* 2 %)) 5)))
@@ -74,11 +55,8 @@
 
 (def doubler-contract-arity1-and-isolated-fn
      (contract doubler 
-       [x]
-       :requires
-       pos?
-       :ensures
-       (= (* 2 x) %)))
+       "Test"
+       [x] [pos? => (= (* 2 x) %)]))
 
 (deftest doubler-contract-arity1-and-isolated-fn-test
   (is (= 10 ((partial doubler-contract-arity1-and-isolated-fn #(* 2 %)) 5)))
@@ -89,9 +67,8 @@
 
 (def doubler-contract-no-requires
      (contract doubler 
-       [x]
-       :ensures
-       (= (* 2 x) %)))
+       "Test"
+       [x] [=> (= (* 2 x) %)]))
 
 (deftest doubler-contract-no-requires-test
   (is (= 10 ((partial doubler-contract-no-requires #(* 2 %)) 5)))
@@ -101,10 +78,8 @@
 
 (def doubler-contract-no-requires-and-isolated-fn
      (contract doubler 
-       [x]
-       :ensures
-       pos?
-       (= (* 2 x) %)))
+       "Test"
+       [x] [=> pos? (= (* 2 x) %)]))
 
 (deftest doubler-contract-no-requires-and-isolated-fn-test
   (is (= 10 ((partial doubler-contract-no-requires-and-isolated-fn #(* 2 %)) 5)))
@@ -114,9 +89,8 @@
 
 (def doubler-contract-no-ensures
      (contract doubler 
-       [x]
-       :requires
-       (pos? x)))
+       "Test"
+       [x] [(pos? x)]))
 
 (deftest doubler-contract-no-ensures-test
   (is (= 10 ((partial doubler-contract-no-ensures #(* 2 %)) 5)))
@@ -126,9 +100,8 @@
 
 (def doubler-contract-no-ensures-and-isolated-fn
      (contract doubler 
-       [x]
-       :requires
-       pos?))
+       "Test"
+       [x] [pos?]))
 
 (deftest doubler-contract-no-ensures-and-isolated-fn-test
   (is (= 10 ((partial doubler-contract-no-ensures-and-isolated-fn #(* 2 %)) 5)))

@@ -17,25 +17,9 @@
 
 (defconstrainedfn positive-nums
   "test"
-  ([x]
-     :requires
-     (number? x)
-     (pos? x)
-     
-     :ensures
-     (float? %)
-     
-     :body
+  ([x] [(number? x) (pos? x) => (float? %)]
      (float x))
-  ([x y]
-     :requires
-     (every? number? [x y])
-     (every? pos?    [x y])
-     
-     :ensures
-     (every? float? %)
-     
-     :body
+  ([x y] [(every? number? [x y]) (every? pos? [x y]) => (every? float? %)]
      (str "this is a noop, meant to ensure that multi-expr bodies work")
      [(float x) (float y)]))
 
@@ -49,15 +33,7 @@
 
 (defconstrainedfn sqr
   "Calculates the square of a number."
-  [n]
-  :requires
-  (number? n)
-  (not (zero? n))
-  
-  :ensures
-  (pos? %)
-
-  :body
+  [n] [(number? n) (not (zero? n)) => (pos? %)]
   (* n n))
 
 (deftest singlebody-cnstr-fn-test
@@ -67,15 +43,7 @@
   (is (thrown? Error (sqr :monkey))))
 
 (defconstrainedfn no-doc-sqr
-  [n]
-  :requires
-  (number? n)
-  (not (zero? n))
-  
-  :ensures
-  (pos? %)
-
-  :body
+  [n] [(number? n) (not (zero? n)) => (pos? %)]
   (* n n))
 
 (deftest no-doc-cnstr-fn-test
@@ -87,15 +55,7 @@
 
 (defconstrainedfn sqr-isolated-fns
   "Calculates the square of a number."
-  [n]
-  :requires
-  number?
-  (not (zero? n))
-  
-  :ensures
-  pos? number?
-
-  :body
+  [n] [number? (not (zero? n)) => pos? number?]
   (* n n))
 
 (deftest sqr-isolated-fns-test

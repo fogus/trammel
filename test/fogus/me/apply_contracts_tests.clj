@@ -12,15 +12,14 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.apply-contracts-tests
-  (:use [fogus.me.trammel :only [apply-contracts]])
+  (:use [fogus.me.trammel :only [provide-contracts]])
   (:use [clojure.test :only [deftest is]]))
 
 (defn sqr [n]
   (* n n))
 
-(apply-contracts
- [sqr [n] :requires number? (not= 0 n)
-          :ensures pos? number?])
+(provide-contracts
+ [sqr "The constraining of sqr" [n] [number? (not= 0 n) => pos? number?]])
 
 (deftest apply-contracts-test
   (is (= 25 (sqr 5)))

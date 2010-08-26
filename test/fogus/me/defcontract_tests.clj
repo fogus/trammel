@@ -17,21 +17,11 @@
 
 (defcontract 
   doubler-defcontract
-  [n]
-  :requires 
-  (number? n)
-  
-  :ensures
-  (= % (* 2 n))
+  "Test"
+  [n] [(number? n) => (= % (* 2 n))]
+  [x y] [(every? number? [x y]) => (= (* 2 (+ x y)) %)])
 
-  [x y]
-  :requires
-  (every? number? [x y])
-  
-  :ensures
-  (= (* 2 (+ x y)) %))
-
-(deftest doubler-defcontract-test
+#_(deftest doubler-defcontract-test
   (is (= 10 ((partial doubler-defcontract #(* 2 (+ %1 %2))) 2 3)))
   (is (= 10 ((partial doubler-defcontract #(+ %1 %1 %2 %2)) 2 3)))
   (is (= 10 ((partial doubler-defcontract #(* 2 %)) 5)))
