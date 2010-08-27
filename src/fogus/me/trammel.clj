@@ -48,6 +48,8 @@
 
 (defmethod funcify* clojure.lang.IFn        [e args] (list* e args))
 (defmethod funcify* java.util.regex.Pattern [e args] (list* 'clojure.core/re-matches e args))
+(defmethod funcify* java.lang.String        [e args] (list* 'clojure.core/= e args))
+(defmethod funcify* java.lang.Number        [e args] (list* 'clojure.core/= e args))
 (defmethod funcify* :default                [e args] e)
 
 (defn- funcify
