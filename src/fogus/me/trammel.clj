@@ -44,17 +44,19 @@
     {:pre  (when (not= L '(=>)) L)
      :post (if (= L '(=>)) M R)}))
 
+(defmulti funcify* (fn [e _] (class e)))
+
+(defmethod funcify* clojure.lang.IFn        [e args] (list* e args))
+(defmethod funcify* java.util.regex.Pattern [e args] (list* 'clojure.core/re-matches e args))
+(defmethod funcify* :default                [e args] e)
+
 (defn- funcify
   "Performs the *magic* of the Trammel syntax.  That is, it currently identifies isolated functions and
    wraps them in a list with the appropriate args.  It also recognizes keywords and does the same under 
    the assumption that a map access is required.  It then returns the vector of calls expected by the
    Clojure pre- and post-conditions map."
   [args cnstr]
-  (vec (map (fn [e]
-              (if (or (symbol? e) (keyword? e))
-                (list* e args)
-                e)) 
-            cnstr)))
+  (vec (map #(funcify* % args) cnstr)))
 
 (defn- build-constraints-map 
   "Takes the corresponding arglist and a vector of the contract expectations, the latter of which looks 

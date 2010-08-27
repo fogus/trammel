@@ -65,7 +65,8 @@ Trammel is in its infancy but I think that I have a nice springboard for experim
  12. Reference contracts
  13. `or`
  14. Make the `anything` constraint cheap (elimination)
- 15. 
+ 15. Allow other stand-alones: true/false, numbers, characters, regexes, 
+ 16. 
 
 If you have any ideas or interesting references then I would be happy to discuss.
 
