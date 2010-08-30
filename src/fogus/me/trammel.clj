@@ -20,6 +20,11 @@
 (def all-negative? #(and (all-numbers? %) (every? (complement pos?) %)))
 (defn anything [& _] true)
 
+(defn in [e & args] (some #{e} (mapcat #(if (vector? %) 
+                                          (apply range %) 
+                                          [%]) 
+                                       args)))
+
 ;; base functions and macros
 
 (defn- keys-apply [f ks m]
@@ -44,13 +49,17 @@
     {:pre  (when (not= L '(=>)) L)
      :post (if (= L '(=>)) M R)}))
 
+(declare funcify)
 (defmulti funcify* (fn [e _] (class e)))
 
 (defmethod funcify* clojure.lang.IFn        [e args] (list* e args))
 (defmethod funcify* java.util.regex.Pattern [e args] (list* 'clojure.core/re-matches e args))
 (defmethod funcify* java.lang.String        [e args] (list* 'clojure.core/= e args))
 (defmethod funcify* java.lang.Number        [e args] (list* 'clojure.core/= e args))
-(defmethod funcify* :default                [e args] e)
+(defmethod funcify* :default                [e args] (case (first e) 
+                                                       'or (list* 'or (funcify args (rest e)))
+                                                       'in (concat (list* 'in args) (rest e))
+                                                       e))
 
 (defn- funcify
   "Performs the *magic* of the Trammel syntax.  That is, it currently identifies isolated functions and
