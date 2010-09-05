@@ -208,7 +208,7 @@
                 (list `fn '[f c] (list `with-constraints 'f 'c)) c#))
       nil)))
 
-#_(defmacro defconstrainedrecord
+(defmacro defconstrainedrecord
   [name slots & etc]
   (let [fields   (->> slots (partition 2) (map first) vec)
         defaults (->> slots (partition 2) (map second))
