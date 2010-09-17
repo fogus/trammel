@@ -29,14 +29,16 @@
 
 (defn- keys-apply [f ks m]
   "Takes a function, a set of keys, and a map and applies the function to the map on the given keys.  
-   A new map of the results of the function applied to the keyed entries is returned."
+   A new map of the results of the function applied to the keyed entries is returned.
+  "
   (let [only (select-keys m ks)] 
     (zipmap (keys only) (map f (vals only)))))
 
 (defn- manip-map [f ks m]
   "Takes a function, a set of keys, and a map and applies the function to the map on the given keys.  
    A modified version of the original map is returned with the results of the function applied to each 
-   keyed entry."
+   keyed entry.
+  "
   (conj m (keys-apply f ks m)))
 
 (defn- build-pre-post-map
@@ -64,7 +66,7 @@
 (defn- funcify
   "Performs the *magic* of the Trammel syntax.  That is, it currently identifies isolated functions and
    wraps them in a list with the appropriate args.  It also recognizes keywords and does the same under 
-    the assumption that a map access is required.  It then returns the vector of calls expected by the
+   the assumption that a map access is required.  It then returns the vector of calls expected by the
    Clojure pre- and post-conditions map."
   [args cnstr]
   (vec (map #(funcify* % args) cnstr)))
@@ -209,39 +211,34 @@
       nil)))
 
 (defmacro defconstrainedrecord
-  [name slots & etc]
+  [name slots invariants & etc]
   (let [fields   (->> slots (partition 2) (map first) vec)
-        defaults (->> slots (partition 2) (map second))
-        fmap     (first (build-forms-map (list* '[] etc)))
-        body     (:body (fmap []))
-        reqs     (:requires (fmap []) '(()))
-        ens      (:ensures (fmap []) '(()))]
+        defaults (->> slots (partition 2) (map second))]
     `(do
        (defrecord ~name
          ~fields
-         ~@body)
+         ~@etc)
        (defconstrainedfn ~(symbol (str "new-" name))
          [& {:keys ~fields :as kwargs#}]
-         :requires ~@reqs
-         :ensures  ~@ens
-         :body
+         ~invariants
          (-> (~(symbol (str name \.)) ~@defaults)
              (merge kwargs#)))
        ~name)))
 
 (comment
+  (merge {:a 1} nil)
+
   (defconstrainedrecord Foo [a 1 b 2]
-    :requires (all-numbers? [a b])
-    :body
+    [(every? number? [a b])]
     Object
     (toString [this] (str "record Foo has " a " and " b)))
 
   (str (Foo. 3 4))
   (str (new-Foo :a 3 :b 5))
+  (new-Foo :a :q :b 6)
 
-  (macroexpand '(defconstrainedrecord Foo [a b]
-    :requires (every? number? [a b])
-    :body
-    Object
-    (toString [this] (str "record Foo has " a " and " b))))
+  (macroexpand '(defconstrainedrecord Foo [a 1 b 2]
+                  [(every? number? [a b])]
+                  Object
+                  (toString [this] (str "record Foo has " a " and " b))))
 )
