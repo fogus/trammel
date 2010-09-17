@@ -64,7 +64,7 @@
 (defn- funcify
   "Performs the *magic* of the Trammel syntax.  That is, it currently identifies isolated functions and
    wraps them in a list with the appropriate args.  It also recognizes keywords and does the same under 
-   the assumption that a map access is required.  It then returns the vector of calls expected by the
+    the assumption that a map access is required.  It then returns the vector of calls expected by the
    Clojure pre- and post-conditions map."
   [args cnstr]
   (vec (map #(funcify* % args) cnstr)))
@@ -231,7 +231,7 @@
 
 (comment
   (defconstrainedrecord Foo [a 1 b 2]
-    :requires (every? number? [a b])
+    :requires (all-numbers? [a b])
     :body
     Object
     (toString [this] (str "record Foo has " a " and " b)))
