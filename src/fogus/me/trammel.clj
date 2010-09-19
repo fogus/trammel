@@ -219,9 +219,25 @@
          ~fields
          ~@etc)
        (defconstrainedfn ~(symbol (str "new-" name))
-         ([] [] (~(symbol (str name \.)) ~@defaults))
+         ([] [] (with-meta 
+                  (~(symbol (str name \.)) ~@defaults)
+                  {:ctor ~(symbol (str "new-" name))}))
          ([& {:keys ~fields :as kwargs# :or ~(apply hash-map slots)}]
             ~invariants
-            (-> (~(symbol (str name \.)) ~@defaults)
-                (merge kwargs#))))
+            (with-meta
+              (-> (~(symbol (str name \.)) ~@defaults)
+                  (merge kwargs#))
+              {:ctor ~(symbol (str "new-" name))})))
        ~name)))
+
+(comment 
+  (defconstrainedrecord Foo [a 1 b 2]
+    [(every? number? [a b])]
+    Object
+    (toString [this] (str "record Foo has " a " and " b)))
+
+  (meta (new-Foo :a 2))
+  ((:ctor (meta (new-Foo))) :c :b)
+)
+
+
