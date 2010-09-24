@@ -232,13 +232,39 @@
               {:factory ~factory-name})))
        ~name)))
 
+(defmacro defconstrainedrecord
+  [name slots invariants & etc]
+  (let [fields       (->> slots (partition 2) (map first) vec)
+        defaults     (->> slots (partition 2) (map second))
+        ctor-name    (symbol (str name \.))
+        factory-name (symbol (str "new-" name))]
+    `(do
+       (defrecord ~name
+         ~fields
+         ~@etc)
+       (defconstrainedfn ~factory-name
+         ([] [] (with-meta 
+                  (~ctor-name ~@defaults)
+                  {:contract (contract ~name "" ~fields ~invariants)}))
+         ([& {:keys ~fields :as kwargs# :or ~(apply hash-map slots)}]
+            ~invariants
+            (with-meta
+              (-> (~ctor-name ~@defaults)
+                  (merge kwargs#))
+              {:contract (contract ~name "" ~fields ~invariants)})))
+       ~name)))
+
 (comment 
   (defconstrainedrecord Foo [a 1 b 2]
     [(every? number? [a b])]
     Object
     (toString [this] (str "record Foo has " a " and " b)))
 
-  (meta (new-Foo :a 2))
+  (defn f [m]
+    (flatten (map (fn [[k v]] [(symbol (name k)) v]) m)))
+  (f (assoc (new-Foo) :a 4 :c 5))
+  
+  ((:contract (meta (new-Foo :a 2))) #(apply new-Foo %&) :a 6)
 )
 
 
