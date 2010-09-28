@@ -106,7 +106,11 @@
   (let [[args pre-post-map] cnstr]
     (list (into '[f] args)
           pre-post-map
-          (list* 'f args))))
+          (list* 'f (mapcat (fn [item]
+                              (cond (symbol? item) [item]
+                                    (map? item) [(:as item)]
+                                    :else ))
+                            args)))))
 
 (defmacro contract
   "The base contract form returning a higher-order function that can then be partially
@@ -242,16 +246,20 @@
        (defrecord ~name
          ~fields
          ~@etc)
-       (defconstrainedfn ~factory-name
-         ([] [] (with-meta 
-                  (~ctor-name ~@defaults)
-                  {:contract (contract ~name "" ~fields ~invariants)}))
-         ([& {:keys ~fields :as kwargs# :or ~(apply hash-map slots)}]
-            ~invariants
-            (with-meta
-              (-> (~ctor-name ~@defaults)
-                  (merge kwargs#))
-              {:contract (contract ~name "" ~fields ~invariants)})))
+       (let [chk# (contract ~(symbol (str "chk-" name))
+                            ""
+                            [{:keys ~fields}] ~invariants)]
+         
+         (defconstrainedfn ~factory-name
+           ([] [] (with-meta 
+                    (~ctor-name ~@defaults)
+                    {:contract chk#}))
+           ([& {:keys ~fields :as kwargs# :or ~(apply hash-map slots)}]
+              ~invariants
+              (with-meta
+                (-> (~ctor-name ~@defaults)
+                    (merge kwargs#))
+                {:contract chk#}))))
        ~name)))
 
 (comment 
@@ -259,12 +267,44 @@
     [(every? number? [a b])]
     Object
     (toString [this] (str "record Foo has " a " and " b)))
+    
+  ((:contract (meta (new-Foo))) #(assoc % :a :v) (new-Foo))
+  (identity (Foo. 1 3))
 
-  (defn f [m]
-    (flatten (map (fn [[k v]] [(symbol (name k)) v]) m)))
-  (f (assoc (new-Foo) :a 4 :c 5))
+  (macroexpand '  (defconstrainedrecord Foo [a 1 b 2]
+    [(every? number? [a b])]
+    Object
+    (toString [this] (str "record Foo has " a " and " b))))
+
+  (do
+    (clojure.core/defrecord Foo [a b] Object (toString [this] (str "record Foo has " a " and " b)))
+
+    (clojure.core/let [chk__213__auto__ (fogus.me.trammel/contract chk-Foo ""
+                                                                   [{:keys [a b]}]
+                                                                   [(every? number? [a b])])]
+                      (fogus.me.trammel/defconstrainedfn new-Foo
+                        ([] [] (clojure.core/with-meta (Foo. 1 2) {:contract chk__213__auto__}))
+                        ([& {:or {a 1, b 2}, :as kwargs__214__auto__, :keys [a b]}] [(every? number? [a b])]
+                           (clojure.core/with-meta
+                             (clojure.core/->
+                              (Foo. 1 2)
+                              (clojure.core/merge kwargs__214__auto__))
+                             {:contract chk__213__auto__}))))
+    Foo)
+
+  (macroexpand '(fogus.me.trammel/contract chk-Foo "" [[x y & z :as L] {:keys [a b] :as m} c d] [(every? number? [a b])]))
   
-  ((:contract (meta (new-Foo :a 2))) #(apply new-Foo %&) :a 6)
+  (clojure.core/with-meta
+    (fn chk-Foo
+      ([f {:keys [a b]}]
+         {:pre [(every? number? [a b])], :post []}
+         (f {:keys [a b]}))) {:constraints (clojure.core/into {} (quote ([[{:keys [a b]}] {:pre [(every? number? [a b])], :post []}])))})
+  
+  (defn foo [[f & r :as x] {:keys [a b] :as m}]
+    [f r x a b m])
+
+  (foo [1 2 3] {:a 2 :b 3})
+  (? [1 2 3])
 )
 
 

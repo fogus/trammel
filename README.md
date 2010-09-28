@@ -79,3 +79,16 @@ References
 - [Contracts in Racket (A Scheme Descendent)](http://pre.plt-scheme.org/docs/html/guide/contracts.html)
 - [A Proof Engine for Eiffel](http://tecomp.sourceforge.net/index.php?file=doc/papers/proof/engine)
 - *How to Deign Programs* by Matthias Felleisen, Robert Bruce Findler, Matthew Flatt, and Shriram Krishnamurthi [here](http://www.htdp.org/2003-09-26/Book/)
+
+Emacs
+-----
+
+Add the following to your .emacs file for better Trammel formatting:
+
+    (eval-after-load 'clojure-mode
+      '(define-clojure-indent
+         (contract 'defun)
+         (defconstrainedfn 'defun)
+         (defcontract 'defun)
+         (provide 'defun)))
+
