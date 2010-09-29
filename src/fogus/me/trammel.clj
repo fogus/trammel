@@ -109,7 +109,7 @@
           (list* 'f (mapcat (fn [item]
                               (cond (symbol? item) [item]
                                     (map? item) [(:as item)]
-                                    :else ))
+                                    :else [item]))
                             args)))))
 
 (defmacro contract
