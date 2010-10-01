@@ -248,7 +248,7 @@
          ~@etc)
        (let [chk# (contract ~(symbol (str "chk-" name))
                             ""
-                            [{:keys ~fields}] ~invariants)]
+                            [{:keys ~fields :as m#}] ~invariants)]
          
          (defconstrainedfn ~factory-name
            ([] [] (with-meta 
@@ -262,49 +262,23 @@
                 {:contract chk#}))))
        ~name)))
 
+(defn- apply-contract [f]
+  (fn [m & args]
+    (if-let [contract (-> m meta :contract)]
+      ((partial contract identity) (apply f m args))
+      (apply f m args))))
+
+
 (comment 
   (defconstrainedrecord Foo [a 1 b 2]
     [(every? number? [a b])]
     Object
     (toString [this] (str "record Foo has " a " and " b)))
     
-  ((:contract (meta (new-Foo))) #(assoc % :a :v) (new-Foo))
-  (identity (Foo. 1 3))
-
-  (macroexpand '  (defconstrainedrecord Foo [a 1 b 2]
-    [(every? number? [a b])]
-    Object
-    (toString [this] (str "record Foo has " a " and " b))))
-
-  (do
-    (clojure.core/defrecord Foo [a b] Object (toString [this] (str "record Foo has " a " and " b)))
-
-    (clojure.core/let [chk__213__auto__ (fogus.me.trammel/contract chk-Foo ""
-                                                                   [{:keys [a b]}]
-                                                                   [(every? number? [a b])])]
-                      (fogus.me.trammel/defconstrainedfn new-Foo
-                        ([] [] (clojure.core/with-meta (Foo. 1 2) {:contract chk__213__auto__}))
-                        ([& {:or {a 1, b 2}, :as kwargs__214__auto__, :keys [a b]}] [(every? number? [a b])]
-                           (clojure.core/with-meta
-                             (clojure.core/->
-                              (Foo. 1 2)
-                              (clojure.core/merge kwargs__214__auto__))
-                             {:contract chk__213__auto__}))))
-    Foo)
-
-  (macroexpand '(fogus.me.trammel/contract chk-Foo "" [[x y & z :as L] {:keys [a b] :as m} c d] [(every? number? [a b])]))
   
-  (clojure.core/with-meta
-    (fn chk-Foo
-      ([f {:keys [a b]}]
-         {:pre [(every? number? [a b])], :post []}
-         (f {:keys [a b]}))) {:constraints (clojure.core/into {} (quote ([[{:keys [a b]}] {:pre [(every? number? [a b])], :post []}])))})
+  (def a (wrap assoc))
   
-  (defn foo [[f & r :as x] {:keys [a b] :as m}]
-    [f r x a b m])
-
-  (foo [1 2 3] {:a 2 :b 3})
-  (? [1 2 3])
+  (a (new-Foo) :a 33 :b 45 :c 88)
 )
 
 
