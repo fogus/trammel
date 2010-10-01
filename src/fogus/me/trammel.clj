@@ -268,17 +268,23 @@
       ((partial contract identity) (apply f m args))
       (apply f m args))))
 
+(alter-var-root (var assoc) apply-contract)
+(alter-var-root (var dissoc) apply-contract)
+(alter-var-root (var merge) apply-contract)
+(alter-var-root (var merge) apply-contract)
+(alter-var-root (var merge-with) (fn [f] (fn [f & maps] (apply (apply-contract merge-with) f maps))))
+(alter-var-root (var into) apply-contract)
+(alter-var-root (var conj) apply-contract)
+(alter-var-root (var assoc-in) apply-contract)
+(alter-var-root (var update-in) apply-contract)
 
 (comment 
   (defconstrainedrecord Foo [a 1 b 2]
     [(every? number? [a b])]
     Object
     (toString [this] (str "record Foo has " a " and " b)))
-    
-  
-  (def a (wrap assoc))
-  
-  (a (new-Foo) :a 33 :b 45 :c 88)
+
+  (str (new-Foo :a 77))
 )
 
 
