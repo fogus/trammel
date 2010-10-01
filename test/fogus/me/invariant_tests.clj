@@ -15,6 +15,7 @@
   (:use [fogus.me.trammel :only [defconstrainedrecord]])
   (:use [clojure.test :only [deftest is]]))
 
+
 (defconstrainedrecord Foo [a 1 b 2]
   [(every? number? [a b])]
   Object
@@ -31,7 +32,4 @@
   (is (= (:b (new-Foo :a 42 :b 108 :c 36)) 108))
   (is (= (:c (new-Foo :a 42 :b 108 :c 36)) 36))
   (is (thrown? Error (new-Foo :a :b)))
-  (is (thrown? Error (new-Foo :a 42 :b nil)))
-  (is (= 1 (:a ((:factory (meta (new-Foo))) :c :b))))
-  (is (= 2 (:b ((:factory (meta (new-Foo))) :c :b))))
-  (is (= 0 (:c ((:factory (meta (new-Foo))) :c 0)))))
+  (is (thrown? Error (new-Foo :a 42 :b nil))))

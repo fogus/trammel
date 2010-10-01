@@ -12,7 +12,7 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.impl-tests
-  (:use fogus.me.trammel)
+  #_(:use fogus.me.trammel)
   (:use [clojure.test :only [deftest is]]))
 
 (def *expectations-table*
