@@ -224,28 +224,6 @@
        (defrecord ~name
          ~fields
          ~@etc)
-       (defconstrainedfn ~factory-name
-         ([] [] (with-meta 
-                  (~ctor-name ~@defaults)
-                  {:factory ~factory-name}))
-         ([& {:keys ~fields :as kwargs# :or ~(apply hash-map slots)}]
-            ~invariants
-            (with-meta
-              (-> (~ctor-name ~@defaults)
-                  (merge kwargs#))
-              {:factory ~factory-name})))
-       ~name)))
-
-(defmacro defconstrainedrecord
-  [name slots invariants & etc]
-  (let [fields       (->> slots (partition 2) (map first) vec)
-        defaults     (->> slots (partition 2) (map second))
-        ctor-name    (symbol (str name \.))
-        factory-name (symbol (str "new-" name))]
-    `(do
-       (defrecord ~name
-         ~fields
-         ~@etc)
        (let [chk# (contract ~(symbol (str "chk-" name))
                             ""
                             [{:keys ~fields :as m#}] ~invariants)]
