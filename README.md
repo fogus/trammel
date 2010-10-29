@@ -61,7 +61,10 @@ Trammel is in its infancy but I think that I have a nice springboard for experim
   8. Modify macros to also allow regular Clojure constraint maps
   9. Reference contracts
  10. Make the `anything` constraint cheap (elimination)
- 11. Allow other stand-alones: true/false, numbers, characters, regexes, 
+ 11. Allow other stand-alones: true/false, numbers, characters, regexes
+ 12. Make `provide-contracts` more amenable to REPL use
+ 13. Generate a Foo? function
+ 14. 
 
 If you have any ideas or interesting references then I would be happy to discuss.
 
