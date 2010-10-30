@@ -80,7 +80,7 @@
 (defconstrainedfn gregorian->absolute
   "Given a Gregorian date, calculate the total number of days
    since the start of the calendar."
-  ([date] [:day :month :year]
+  ([date] [map? :day :month :year]
      (gregorian->absolute (:day date) (:month date) (:year date)))
   ([day month year] [all-positive? => (= (quot % 365) year)]
      (+ day
