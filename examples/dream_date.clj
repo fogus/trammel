@@ -1,6 +1,6 @@
 (ns dream-date
   (:use [fogus.me.trammel :only [provide-contracts defconstrainedrecord
-                                 all-numbers?]]))
+                                 all-numbers? all-positive? defconstrainedfn]]))
 
 (in-ns 'fogus.me.trammel)
 
@@ -71,21 +71,23 @@
   [year]
   (quot (dec year) 100))
 
+(provide-contracts
+ [julian-leap-days-in-prior-years "Contract for JLD calculation"
+  [y] [number? pos? => integer? pos?]]
+ 
+ [prior-century-years "Contract for PCY"
+  [y] [number? pos? => integer? pos?]])
 
-(defn gregorian->absolute
-  ([date] (gregorian->absolute (:day date) (:month date) (:year date)))
-  ([day month year]
+
+(defconstrainedfn gregorian->absolute
+  "Given a Gregorian date, calculate the total number of days
+   since the start of the calendar."
+  ([date] [:day :month :year]
+     (gregorian->absolute (:day date) (:month date) (:year date)))
+  ([day month year] [all-positive? => (= (quot % 365) year)]
      (+ day
         (days-in-prior-months month year)
         (days-in-prior-years year)
         (julian-leap-days-in-prior-years year)
         (- (prior-century-years year))
         (quot (dec year) 400))))
-
-
-(gregorian->absolute {:day 16 :month 12 :year 1999})
-(gregorian->absolute (bean (java.util.Date.)))
-
-(-> (java.util.GregorianCalendar. (+ 1999 1899) 12 16)
-    (.getTime)
-    bean)
