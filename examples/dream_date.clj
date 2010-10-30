@@ -2,8 +2,6 @@
   (:use [fogus.me.trammel :only [provide-contracts defconstrainedrecord
                                  all-numbers? all-positive? defconstrainedfn]]))
 
-(in-ns 'fogus.me.trammel)
-
 (def *canonical-days* [31 28 31 30 31 30 31 31 30 31 30 31])
 
 (defconstrainedrecord Date [year 1970 month 1 day 1]
