@@ -273,3 +273,27 @@
 
   (str (new-Foo :a 77))
 )
+
+(defmacro defconstrainedtype
+  [name slots invariants & etc]
+  (let [fields       (->> slots (partition 2) (map first) vec)
+        defaults     (->> slots (partition 2) (map second))
+        ctor-name    (symbol (str name \.))
+        factory-name (symbol (str "new-" name))]
+    `(do
+       (deftype ~name
+         ~fields
+         ~@etc)
+       (let [chk# (contract ~(symbol (str "chk-" name))
+                            (str "Invariant contract for " (str ~name)) 
+                            [{:keys ~fields :as m#}] ~invariants)]
+         (defconstrainedfn ~factory-name
+           ([] [] (~ctor-name ~@defaults))
+           (~fields ~invariants
+              (~ctor-name ~@defaults))))
+       ~name)))
+
+(comment
+  (defconstrainedtype Bar [a 4] [pos?])
+  (.a (new-Bar -42))
+)
