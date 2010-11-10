@@ -260,20 +260,6 @@
   (alter-var-root (var assoc-in) apply-contract)
   (alter-var-root (var update-in) apply-contract))
 
-
-(comment 
-  (defconstrainedrecord Foo [a 1 b 2]
-    [(every? number? [a b])]
-    Object
-    (toString [this] (str "record Foo has " a " and " b)))
-  
-  (meta (:contract (meta (new-Foo))))
-  
-  (assoc (new-Foo) :a :zz)
-
-  (str (new-Foo :a 77))
-)
-
 (defmacro defconstrainedtype
   [name slots invariants & etc]
   (let [fields       (->> slots (partition 2) (map first) vec)

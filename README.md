@@ -9,6 +9,8 @@ Trammel
 Example
 -------
 
+### Function Contracts
+
     (use '[fogus.me.trammel :only [provide-contracts]])
     
     (defn sqr [n] (* n n))
@@ -27,6 +29,31 @@ Example
     (sqr 0)
     ; java.lang.AssertionError: Assert failed: (not= 0 x)
 
+### Record Invariants
+
+    (use 'fogus.me.trammel)
+    
+    (defconstrainedrecord Foo [a 1 b 2]
+      [(every? number? [a b])]
+      Object
+      (toString [this] (str "record Foo has " a " and " b)))
+    
+    ;; default ctor with default values
+    (new-Foo)
+    ;=> #:user.Foo{:a 1, :b 2}
+    
+    ;; kwarg ctor
+    (new-Foo :a 42)
+    ;=> #:user.Foo{:a 42, :b 2}
+    
+    ;; use like any other map/record
+    (assoc (new-Foo) :a 88 :c "foo")
+    ;=> #:user.Foo{:a 88, :b 2, :c "foo"}
+    
+    ;; invariants on records checked at runtime    
+    (assoc (new-Foo) :a "foo")
+    ; Assert failed: (every? number? [a b])
+
 Getting
 -------
 
@@ -34,7 +61,7 @@ Getting
 
 Modify your [Leiningen](http://github.com/technomancy/leiningen) dependencies to include Trammel:
 
-    :dependencies [[trammel "0.3.0"] ...]    
+    :dependencies [[trammel "0.4.5"] ...]    
 
 ### Maven
 
@@ -43,7 +70,7 @@ Add the following to your `pom.xml` file:
     <dependency>
       <groupId>trammel</groupId>
       <artifactId>trammel</artifactId>
-      <version>0.3.0</version>
+      <version>0.4.5</version>
     </dependency>
 
 Notes
