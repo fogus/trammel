@@ -78,20 +78,17 @@ Notes
 
 Trammel is in its infancy but I think that I have a nice springboard for experimentation and expansion, including:
 
-  1. Better error messages
-  2. Distinct pre and post exceptions
-  3. Study the heck out of everything Bertrand Meyer ever wrote (in progress)
-  4. Type invariants (in progress)
-  5. `defconstraint` -- with ability to relax requires and tighten ensures
-  6. Implicit arguments for isolated function. (in progress)
-  7. Study the heck out of Racket Scheme (in progress)
-  8. Modify macros to also allow regular Clojure constraint maps
-  9. Reference contracts
- 10. Make the `anything` constraint cheap (elimination)
- 11. Allow other stand-alones: true/false, numbers, characters, regexes
- 12. Make `provide-contracts` more amenable to REPL use
- 13. Generate a Foo? function
- 14. 
+  - Better error messages
+  - Distinct pre and post exceptions
+  - Study the heck out of everything Bertrand Meyer ever wrote (in progress)
+  - `defconstraint` -- with ability to relax requires and tighten ensures
+  - Study the heck out of Racket Scheme (in progress)
+  - Modify macros to also allow regular Clojure constraint maps
+  - Reference contracts
+  - Make the `anything` constraint cheap (elimination)
+  - Allow other stand-alones: true/false, numbers, characters, regexes
+  - Make `provide-contracts` more amenable to REPL use
+  - Generate a Foo? function  (in progress) 
 
 If you have any ideas or interesting references then I would be happy to discuss.
 

@@ -222,9 +222,10 @@
         ctor-name    (symbol (str name \.))
         factory-name (symbol (str "new-" name))]
     `(do
-       (defrecord ~name
-         ~fields
-         ~@etc)
+       (let [t# (defrecord ~name ~fields ~@etc)]
+         (defn ~(symbol (str name \?)) [r#]
+           (= t# (type r#))))
+
        (let [chk# (contract ~(symbol (str "chk-" name))
                             (str "Invariant contract for " (str ~name)) 
                             [{:keys ~fields :as m#}] ~invariants)]
@@ -267,9 +268,10 @@
         ctor-name    (symbol (str name \.))
         factory-name (symbol (str "new-" name))]
     `(do
-       (deftype ~name
-         ~fields
-         ~@etc)
+       (let [t# (deftype ~name ~fields ~@etc)]
+         (defn ~(symbol (str name \?)) [r#]
+           (= t# (type r#))))
+       
        (let [chk# (contract ~(symbol (str "chk-" name))
                             (str "Invariant contract for " (str ~name)) 
                             [{:keys ~fields :as m#}] ~invariants)]
@@ -281,5 +283,9 @@
 
 (comment
   (defconstrainedtype Bar [a 4] [pos?])
+  (Bar? (new-Bar))
+
+  (type (new-Bar))
+  
   (.a (new-Bar -42))
 )
