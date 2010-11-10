@@ -278,14 +278,17 @@
          (defconstrainedfn ~factory-name
            ([] [] (~ctor-name ~@defaults))
            (~fields ~invariants
-              (~ctor-name ~@defaults))))
+              (~ctor-name ~@fields))))
        ~name)))
 
 (comment
-  (defconstrainedtype Bar [a 4] [pos?])
+  (defconstrainedtype Bar [a 4 b 8] [(every? pos? [a b])])
   (Bar? (new-Bar))
 
   (type (new-Bar))
   
-  (.a (new-Bar -42))
+  (.a (new-Bar  42 77))
+  (.b (new-Bar  42 77))
+  (.a (new-Bar -42 77))
+  (.b (new-Bar  42 -77))  
 )
