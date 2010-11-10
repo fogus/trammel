@@ -153,7 +153,8 @@
                       (build-contract b))]
     (list `with-meta 
           (list* `fn name fn-arities)
-          `{:constraints (into {} '~arity-cnstr)})))
+          `{:constraints (into {} '~arity-cnstr)
+            :docstring ~docstring})))
 
 (defn with-constraints
   "A contract combinator.
@@ -225,9 +226,8 @@
          ~fields
          ~@etc)
        (let [chk# (contract ~(symbol (str "chk-" name))
-                            ""
+                            (str "Invariant contract for " (str ~name)) 
                             [{:keys ~fields :as m#}] ~invariants)]
-         
          (defconstrainedfn ~factory-name
            ([] [] (with-meta 
                     (~ctor-name ~@defaults)
@@ -250,22 +250,26 @@
           (apply f m args)))
       {:hooked true})))
 
-(alter-var-root (var assoc) apply-contract)
-(alter-var-root (var dissoc) apply-contract)
-(alter-var-root (var merge) apply-contract)
-(alter-var-root (var merge-with) (fn [f] (let [mw (apply-contract f)] (fn [f & maps] (apply mw f maps)))))
-(alter-var-root (var into) apply-contract)
-(alter-var-root (var conj) apply-contract)
-(alter-var-root (var assoc-in) apply-contract)
-(alter-var-root (var update-in) apply-contract)
+(when *assert*
+  (alter-var-root (var assoc) apply-contract)
+  (alter-var-root (var dissoc) apply-contract)
+  (alter-var-root (var merge) apply-contract)
+  (alter-var-root (var merge-with) (fn [f] (let [mw (apply-contract f)] (fn [f & maps] (apply mw f maps)))))
+  (alter-var-root (var into) apply-contract)
+  (alter-var-root (var conj) apply-contract)
+  (alter-var-root (var assoc-in) apply-contract)
+  (alter-var-root (var update-in) apply-contract))
+
 
 (comment 
   (defconstrainedrecord Foo [a 1 b 2]
     [(every? number? [a b])]
     Object
     (toString [this] (str "record Foo has " a " and " b)))
+  
+  (meta (:contract (meta (new-Foo))))
+  
+  (assoc (new-Foo) :a :zz)
 
   (str (new-Foo :a 77))
 )
-
-

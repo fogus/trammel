@@ -89,3 +89,14 @@
         (julian-leap-days-in-prior-years year)
         (- (prior-century-years year))
         (quot (dec year) 400))))
+
+(defn absolute->gregorian
+  [date] 
+  (let [approx (quot date 366)
+        year   (+ approx
+                  (reduce +
+                          (for [i (range) :when (>= date (gregorian->absolute {:day 1 :month 1 :year (inc i)}))]
+                            i)))]
+    year))
+
+(absolute->gregorian 10)
