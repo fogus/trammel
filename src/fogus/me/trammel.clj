@@ -105,12 +105,36 @@
   [cnstr]
   (let [[args pre-post-map] cnstr]
     (list (into '[f] args)
-          pre-post-map
-          (list* 'f (mapcat (fn [item]
-                              (cond (symbol? item) [item]
-                                    (map? item) [(:as item)]
-                                    :else [item]))
-                            args)))))
+          (list 'try
+                (list
+                 (list 'fn [] pre-post-map
+                       (list* 'f (mapcat (fn [item]
+                                           (cond (symbol? item) [item]
+                                                 (map? item) [(:as item)]
+                                                 :else [item]))
+                                         args))))
+                (list 'catch 'AssertionError 'e
+                  (list 'throw '(Exception. "foo")))))))
+
+(comment
+  (build-contract '[[x] {:pre [(foo x)] :post [(bar %)]}])
+  ([f x]
+     (try
+       ((fn []
+          {:pre [(foo x)], :post [(bar %)]}
+          (f x)))
+       (catch AssertionError e
+         (throw (Exception. 'foo)))))
+
+  (defn foo [a b]
+    (try
+      ((fn []
+         {:pre [(number? a)]}
+         [a b]))
+      (catch AssertionError _
+        (throw (Exception. "har!")))))
+
+  (foo :a 2))
 
 (defmacro contract
   "The base contract form returning a higher-order function that can then be partially
