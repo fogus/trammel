@@ -103,38 +103,48 @@
     ([f x] {:pre [(foo x)] :post [(bar %)]} (f x))
   "
   [cnstr]
+  (println "FOO!")
   (let [[args pre-post-map] cnstr]
     (list (into '[f] args)
-          (list 'try
-                (list
-                 (list 'fn [] pre-post-map
-                       (list* 'f (mapcat (fn [item]
-                                           (cond (symbol? item) [item]
-                                                 (map? item) [(:as item)]
-                                                 :else [item]))
-                                         args))))
-                (list 'catch 'AssertionError 'e
-                  (list 'throw '(Exception. "foo")))))))
+          (list 'let ['ret (list 'try
+                                 (list (list 'fn []
+                                             (select-keys pre-post-map [:pre])
+                                             (list* 'f (mapcat (fn [item]
+                                                                 (cond (symbol? item) [item]
+                                                                       (map? item) [(:as item)]
+                                                                       :else [item]))
+                                                               args))))
+                                 (list 'catch 'AssertionError 'pre
+                                       (list 'throw (list 'AssertionError. (list 'str "Pre-condition failure! " (list '.getMessage 'pre))))))]
+                (list 'try
+                      (list (list 'fn []
+                                  (select-keys pre-post-map [:post])
+                                  'ret
+                                  ))
+                      (list 'catch 'AssertionError 'post
+                            (list 'throw (list 'AssertionError. (list 'str "Post-condition failure! " (list '.getMessage 'post))))))))))
 
 (comment
-  (build-contract '[[x] {:pre [(foo x)] :post [(bar %)]}])
-  ([f x]
-     (try
-       ((fn []
-          {:pre [(foo x)], :post [(bar %)]}
-          (f x)))
-       (catch AssertionError e
-         (throw (Exception. 'foo)))))
+  (build-contract '[[x y] {:pre [(number? x)] :post [(pos? %)]}])
+  
+  (defn foo [f n]
+    (let [ret (try
+                ((fn []
+                   {:pre [(number? n)]}
+                   (f n n)))
+                (catch AssertionError pre
+                  (throw (AssertionError. (str "Pre-condition failure! " (.getMessage pre))))))]
+      (try
+        ((fn []
+           {:post [(pos? %)]}
+           ret))
+        (catch AssertionError post
+          (throw (AssertionError. (str "Post-condition failure! " (.getMessage post))))))))
 
-  (defn foo [a b]
-    (try
-      ((fn []
-         {:pre [(number? a)]}
-         [a b]))
-      (catch AssertionError _
-        (throw (Exception. "har!")))))
-
-  (foo :a 2))
+  (foo + 1)
+  (foo + 'a)
+  (foo + -4)
+)
 
 (defmacro contract
   "The base contract form returning a higher-order function that can then be partially
@@ -308,6 +318,16 @@
 (comment
   (defconstrainedtype Bar [a 4 b 8] [(every? pos? [a b])])
   (Bar? (new-Bar))
+
+(defn sqr [n]
+  (* n n))
+
+(provide-contracts
+ [sqr "The constraining of sqr" [n] [number? (not= 0 n) => pos? number?]])
+
+(sqr 0)
+
+ (positive-nums -1)
 
   (type (new-Bar))
   
