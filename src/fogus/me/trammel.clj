@@ -102,7 +102,7 @@
 
     ([f x] {:pre [(foo x)] :post [(bar %)]} (f x))
   "
-  [cnstr]
+  [n cnstr]
   (let [[args pre-post-map] cnstr]
     `(~(into '[f] args)
       (let [ret# (try
@@ -114,13 +114,13 @@
                                                  :else [item]))
                                          args))))
                    (catch AssertionError pre#
-                     (throw (AssertionError. (str "Pre-condition failure! " (.getMessage pre#))))))]
+                     (throw (AssertionError. (str "Pre-condition failure in " ~n "! " (.getMessage pre#))))))]
         (try
           ((fn []
              ~(select-keys pre-post-map [:post])
              ret#))
           (catch AssertionError post#
-            (throw (AssertionError. (str "Post-condition failure! " (.getMessage post#))))))))))
+            (throw (AssertionError. (str "Post-condition failure in " ~n "! " (.getMessage post#))))))))))
 
 (defmacro contract
   "The base contract form returning a higher-order function that can then be partially
@@ -155,16 +155,17 @@
    If you're so inclined, you can inspect the terms of the contract via its metadata, keyed on
    the keyword `:constraints`.
   "
-  [name docstring & constraints]
+  [n docstring & constraints]
   (let [raw-cnstr   (partition 2 constraints)
         arity-cnstr (for [[a c] raw-cnstr]
                       (build-constraints-map a c))
         fn-arities  (for [b arity-cnstr]
-                      (build-contract b))]
-    (list `with-meta 
-          (list* `fn name fn-arities)
-          `{:constraints (into {} '~arity-cnstr)
-            :docstring ~docstring})))
+                      (build-contract docstring b))
+        body (list* 'fn n fn-arities)]
+    `(with-meta 
+       ~body
+       {:constraints (into {} '~arity-cnstr)
+        :docstring ~docstring})))
 
 (defn with-constraints
   "A contract combinator.
@@ -309,11 +310,10 @@
   (defconstrainedtype Bar [a 4 b 8] [(every? pos? [a b])])
   (Bar? (new-Bar))
 
-  (defn sqr [n]
-    (* n n))
+  (defn sqr [n] (* n n))
 
   (provide-contracts
-   [sqr "The constraining of sqr" [n] [number? (not= 0 n) => pos? number?]])
+   [sqr "the constraining of sqr" [n] [number? (not= 0 n) => pos? number?]])
 
   (sqr 0)
 
