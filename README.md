@@ -54,6 +54,20 @@ Example
     (assoc (new-Foo) :a "foo")
     ; Assert failed: (every? number? [a b])
 
+### Type Invariants
+
+    (use 'fogus.me.trammel)
+    
+    (defconstrainedtype Foo [a 1 b 2]
+      [(every? number? [a b])])
+    
+    (new-Foo)
+    #<Foo user.Foo@73683>
+    
+    ;; invariants on types checked at constructions time
+    (new-Foo 1 :b)
+    ; Assert failed: (every? number? [a b])
+
 Getting
 -------
 
@@ -106,6 +120,7 @@ References
 - [Contracts in Racket (A Scheme Descendent)](http://pre.plt-scheme.org/docs/html/guide/contracts.html)
 - [A Proof Engine for Eiffel](http://tecomp.sourceforge.net/index.php?file=doc/papers/proof/engine)
 - *How to Deign Programs* by Matthias Felleisen, Robert Bruce Findler, Matthew Flatt, and Shriram Krishnamurthi [here](http://www.htdp.org/2003-09-26/Book/)
+- *An Axiomatic Basis for Computer Programming* by C.A.R Hoare
 
 Emacs
 -----

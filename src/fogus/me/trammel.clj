@@ -324,5 +324,24 @@
   (.a (new-Bar  42 77))
   (.b (new-Bar  42 77))
   (.a (new-Bar -42 77))
-  (.b (new-Bar  42 -77))  
-)
+  (.b (new-Bar  42 -77))
+
+  (defconstrainedfn sqrt
+    [x] [(>= x 0) => (>= % 0)]
+    (Math/sqrt x))
+  
+  (defn bigger-than-zero? [n] (>= n 0))
+  
+  (defconstrainedfn sqrt
+    [x] [bigger-than-zero? => bigger-than-zero?]
+    (Math/sqrt x))
+
+  (sqrt 10)
+  (sqrt -19)
+
+  (defconstrainedfn sqrt
+    [x] [bigger-than-zero? => bigger-than-zero? (<= (Math/abs (- x (* % %))) 0.01)]
+    (Math/sqrt x))
+
+  (* (sqrt 30) (sqrt 30))
+  )
