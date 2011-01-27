@@ -107,3 +107,20 @@
   (is (= 10 ((partial doubler-contract-no-ensures-and-isolated-fn #(* 2 %)) 5)))
   (is (= 15 ((partial doubler-contract-no-ensures-and-isolated-fn #(* 3 %)) 5)))
   (is (thrown? Error ((partial doubler-contract-no-ensures-and-isolated-fn #(* 2 %)) -5))))
+
+;; using default pre/post maps only
+
+(def doubler-contract-full-mappy
+     (contract doubler
+       "Test"
+       [x] {:pre  [(pos? x)]
+            :post [(= (* 2 x) %)]}
+
+       [x y] {:pre [(pos? x) (pos? y)]
+              :post [(= (* 2 (+ x y)) %)]}))
+
+(deftest doubler-contract-mappy-test
+  (is (= 10 ((partial doubler-contract-full-mappy #(* 2 (+ %1 %2))) 2 3)))
+  (is (= 10 ((partial doubler-contract-full-mappy #(+ %1 %1 %2 %2)) 2 3)))
+  (is (= 10 ((partial doubler-contract-full-mappy #(* 2 %)) 5)))
+  (is (thrown? Error ((partial doubler-contract-full-mappy #(* 3 (+ %1 %2))) 2 3))))

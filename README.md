@@ -134,3 +134,50 @@ Add the following to your .emacs file for better Trammel formatting:
          (defcontract 'defun)
          (provide 'defun)))
 
+
+Example REPL Session
+--------------------
+
+Type the following into a REPL session to see how Trammel might be used.
+
+    (defconstrainedtype Bar 
+      [a 4 b 8] 
+      [(every? pos? [a b])])
+    
+    (Bar? (new-Bar))
+    
+    (defn sqr [n] (* n n))
+    
+    (provide-contracts
+      [sqr "the constraining of sqr" 
+        [n] [number? (not= 0 n) => pos? number?]])
+    
+    (sqr 0)
+
+    (positive-nums -1)
+
+    (type (new-Bar))
+    
+    (.a (new-Bar  42 77))
+    (.b (new-Bar  42 77))
+    (.a (new-Bar -42 77))
+    (.b (new-Bar  42 -77))
+
+    (defconstrainedfn sqrt
+      [x] [(>= x 0) => (>= % 0)]
+      (Math/sqrt x))
+    
+    (defn- bigger-than-zero? [n] (>= n 0))
+    
+    (defconstrainedfn sqrt
+      [x] [bigger-than-zero? => bigger-than-zero?]
+      (Math/sqrt x))
+    
+    (sqrt 10)
+    (sqrt -19)
+    
+    (defconstrainedfn sqrt
+      [x] [bigger-than-zero? => bigger-than-zero? (<= (Math/abs (- x (* % %))) 0.01)]
+      (Math/sqrt x))
+    
+    (* (sqrt 30) (sqrt 30))
