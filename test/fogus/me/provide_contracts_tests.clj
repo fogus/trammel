@@ -13,7 +13,7 @@
 
 (ns fogus.me.provide-contracts-tests
   (:use [fogus.me.trammel :only [defcontract]])
-  (:require provide)
+  (:require [trammel.provide :as provide])
   (:use [clojure.test :only [deftest is]]))
 
 (defn sqr [n]
