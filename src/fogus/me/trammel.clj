@@ -1,19 +1,19 @@
-;;; trammel.clj -- Contracts programming library for Clojure
+; trammel.clj -- Contracts programming library for Clojure
 
-;; by Michael Fogus - <http://fogus.me/fun/trammel>
-;; May 26, 2010
+; by Michael Fogus - <http://fogus.me/fun/trammel>
+; May 26, 2010
 
-;; Copyright (c) Michael Fogus, 2010. All rights reserved.  The use
-;; and distribution terms for this software are covered by the Eclipse
-;; Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
-;; which can be found in the file COPYING the root of this
-;; distribution.  By using this software in any fashion, you are
-;; agreeing to be bound by the terms of this license.  You must not
-;; remove this notice, or any other, from this software.
+; Copyright (c) Michael Fogus, 2010. All rights reserved.  The use
+; and distribution terms for this software are covered by the Eclipse
+; Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
+; which can be found in the file COPYING the root of this
+; distribution.  By using this software in any fashion, you are
+; agreeing to be bound by the terms of this license.  You must not
+; remove this notice, or any other, from this software.
 
 (ns fogus.me.trammel)
 
-;; constraint functions and multimethods
+;; # constraint functions and multimethods
 
 (def all-numbers?  #(every? number? %&))
 (def all-positive? #(and (apply all-numbers? %&) (every? pos? %&)))
@@ -25,20 +25,22 @@
                                           [%]) 
                                        args)))
 
-;; base functions and macros
+;; # base functions and macros
 
-(defn- keys-apply [f ks m]
+(defn- keys-apply
   "Takes a function, a set of keys, and a map and applies the function to the map on the given keys.  
    A new map of the results of the function applied to the keyed entries is returned.
   "
+  [f ks m]
   (let [only (select-keys m ks)] 
     (zipmap (keys only) (map f (vals only)))))
 
-(defn- manip-map [f ks m]
+(defn- manip-map
   "Takes a function, a set of keys, and a map and applies the function to the map on the given keys.  
    A modified version of the original map is returned with the results of the function applied to each 
    keyed entry.
   "
+  [f ks m]
   (conj m (keys-apply f ks m)))
 
 (defn- build-pre-post-map
@@ -75,15 +77,15 @@
   "Takes the corresponding arglist and a vector of the contract expectations, the latter of which looks 
    like any of the following:
 
-    [(= 0 _)] or [number?] ;; lists only the pre-condition
-    [number? => number?]   ;; lists a pre- and post-condition
-    [=> number?]           ;; lists only a post-condition
-    [foo bar => baz]       ;; lists a pre- and post-condition
+       [(= 0 _)] or [number?] ;; only the pre-
+       [number? => number?]   ;; a pre- and post-
+       [=> number?]           ;; only a post-
+       [foo bar => baz]       ;; 2 pre- and 1 post-
 
    It then takes this form and builds a pre- and post-condition map of the form:
 
-    {:pre  [(foo x) (bar x)]
-     :post [(baz %)]}
+       {:pre  [(foo x) (bar x)]
+        :post [(baz %)]}
   "
   [args cnstr]
   [args 
@@ -94,13 +96,21 @@
 (defn- build-contract 
   "Expects a seq representing an arity-based expectation of the form:
 
-    [[x] {:pre [(foo x)] :post [(bar %)]}]
+        [[x] {:pre [(foo x)] :post [(bar %)]}]
 
    It then uses this data to build another list reprsenting a specific arity body
    for a higher-order function with attached pre- and post-conditions that directly 
    calls the function passed in:
 
-    ([f x] {:pre [(foo x)] :post [(bar %)]} (f x))
+        ([f x] {:pre [(foo x)] :post [(bar %)]} (f x))
+
+   However, the picture is slightly more compilcated than that because Clojure does
+   not have disparate pre-/post-conditions.  Therefore, it's on me to provide a
+   slightly more crystaline picture of the condition failure when it occurs.  As a
+   result the body of the contract is interwoven with `try`/`catch` blocks to catch
+   and examine the contents of `AssertionErrors` and based on context rethrow them
+   with more information.  At the moment this information only takes the form of a
+   richer assertion message.
   "
   [n cnstr]
   (let [[args pre-post-map] cnstr]
@@ -128,24 +138,32 @@
    contract that describes an expectation for a function that simply takes one or two
    numbers and returns the double:
    
-    (def doubler-contract
-       (contract doubler
-         [x] [number? => (= (* 2 x) %)]
+       (def doubler-contract
+         (contract doubler
+           [x] [number? => (= (* 2 x) %)]
 
-         [x y] [(every? number? [x y]) => (= (* 2 (+ x y)) %)]))
+           [x y] [(every? number? [x y])
+                  =>
+                  (= (* 2 (+ x y)) %)]))
 
    You can then partially apply this contract with an existing function:
 
-    (def doubler (partial doubler-contract #(* 2 %)))
-    (def bad-doubler (partial doubler-contract #(* 3 %)))
+       (def doubler
+            (partial doubler-contract
+                     #(* 2 %)))
+       
+       (def bad-doubler
+            (partial doubler-contract
+                     #(* 3 %)))
 
    And then running these functions will be checked against the contract at runtime:
 
-    (doubler 2)
-    ;=> 4
-
-    (bad-doubler 2)
-    ; java.lang.AssertionError: Assert failed: (= (* 2 x) %)
+       (doubler 2)
+       ;=> 4
+       
+       (bad-doubler 2)
+       ; java.lang.AssertionError:
+       ;   Assert failed: (= (* 2 x) %)
 
    Similar results would occur for the 2-arity versions of `doubler` and `bad-doubler`.
 
@@ -188,10 +206,9 @@
 (defmacro defconstrainedfn
   "Defines a function using the `contract` scheme with an additional `:body` element.
 
-    (defconstrainedfn sqr
-      \"Squares a number\"
-      [n] [number? (not= 0 n) => pos? number?]
-      (* n n))
+       (defconstrainedfn sqr
+         [n] [number? (not= 0 n) => pos? number?]
+         (* n n))
 
    Like the `contract` macro, multiple arity functions can be defined where each argument vector 
    is immediately followed by the relevent arity expectations.
@@ -213,20 +230,6 @@
     `(defn ~name
        ~(if (:doc mdata) (:doc mdata) "")
        ~@body)))
-
-(comment
-  (defn foo [a b]
-    ((contract blah [a_ b_] [=> pos?])
-     (fn [a b] (+ a b))
-     a
-     b))
-
-  (let [con (contract blah [a_ b_] [=> pos?])]
-    (defn foo
-      "blah"
-      ([a]
-         (con ()))))
-  )
 
 (defmacro provide-contracts [& contracts]
   (let [fn-names  (map first contracts)
