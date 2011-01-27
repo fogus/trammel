@@ -12,7 +12,7 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.contract-tests
-  (:use [fogus.me.trammel :only [contract]])
+  (:use [trammel.core :only [contract]])
   (:use [clojure.test :only [deftest is]]))
 
 (def doubler-contract-full

@@ -1,7 +1,7 @@
-; trammel.clj -- Contracts programming library for Clojure
+;; trammel.clj -- Contracts programming library for Clojure
 
-; by Michael Fogus - <http://fogus.me/fun/trammel>
-; May 26, 2010
+;; by Michael Fogus - <http://fogus.me/fun/trammel>
+;; May 26, 2010
 
 ; Copyright (c) Michael Fogus, 2010. All rights reserved.  The use
 ; and distribution terms for this software are covered by the Eclipse
@@ -10,7 +10,7 @@
 ; distribution.  By using this software in any fashion, you are
 ; agreeing to be bound by the terms of this license.  You must not
 ; remove this notice, or any other, from this software.
-(ns fogus.me.trammel
+(ns trammel.core
   "The core contracts programming functions and macros for Trammel.")
 
 ;; # base functions and macros

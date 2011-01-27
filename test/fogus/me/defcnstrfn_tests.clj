@@ -12,7 +12,7 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.defcnstrfn-tests
-  (:use [fogus.me.trammel :only [defconstrainedfn]])
+  (:use [trammel.core :only [defconstrainedfn]])
   (:use [clojure.test :only [deftest is]]))
 
 (defconstrainedfn positive-nums

@@ -1,7 +1,7 @@
 (ns trammel.provide
   "Provides the Var manipulation macro offering ex post facto application of contracts
    to existing functions."
-  (:use  [fogus.me.trammel :only (with-constraints contract)]))
+  (:use  [trammel.core :only (with-constraints contract)]))
 
 (defmacro contracts
   [& kontracts]

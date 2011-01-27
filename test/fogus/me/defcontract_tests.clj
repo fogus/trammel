@@ -12,7 +12,7 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.defcontract-tests
-  (:use [fogus.me.trammel :only [defcontract]])
+  (:use [trammel.core :only [defcontract]])
   (:use [clojure.test :only [deftest is]]))
 
 (defcontract 

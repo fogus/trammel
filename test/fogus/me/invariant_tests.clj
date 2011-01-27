@@ -12,7 +12,7 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.invariant-tests
-  (:use [fogus.me.trammel :only [defconstrainedrecord]])
+  (:use [trammel.core :only [defconstrainedrecord]])
   (:use [clojure.test :only [deftest is]]))
 
 
