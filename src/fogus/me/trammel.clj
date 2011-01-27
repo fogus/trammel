@@ -204,14 +204,16 @@
      (contract ~(symbol (str name "-impl")) ~docstring ~@forms)))
 
 (defmacro defconstrainedfn
-  "Defines a function using the `contract` scheme with an additional `:body` element.
+  "Defines a function using the `contract` vector appearing after the arguments.
 
        (defconstrainedfn sqr
          [n] [number? (not= 0 n) => pos? number?]
          (* n n))
 
    Like the `contract` macro, multiple arity functions can be defined where each argument vector 
-   is immediately followed by the relevent arity expectations.
+   is immediately followed by the relevent arity expectations.  This macro will also detect
+   if a map is in that constraints position and use that instead under the assumption that
+   Clojure's `:pre`/`:post` map is used instead.
   "
   [name & body]
   (let [mdata (if (string? (first body))
@@ -225,7 +227,9 @@
                 body)
         body  (for [[args cnstr & bd] body]
                 (list* args
-                       (second (build-constraints-map args cnstr))
+                       (if (map? cnstr)
+                         cnstr
+                         (second (build-constraints-map args cnstr)))
                        bd))]
     `(defn ~name
        ~(if (:doc mdata) (:doc mdata) "")
