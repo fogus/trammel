@@ -11,7 +11,7 @@ Example
 
 ### Function Contracts
 
-    (use '[fogus.me.trammel :only [provide-contracts]])
+    (require 'trammel.provide)
     
     (defn sqr [n] (* n n))
     
@@ -20,7 +20,7 @@ Example
     (sqr 0)
     ;=> 0
     
-    (provide-contracts 
+    (provide/contracts 
       [sqr "Constraints for squaring" 
         [x] [number? (not= 0 x) => number? pos?]])
     
@@ -31,7 +31,7 @@ Example
 
 ### Record Invariants
 
-    (use 'fogus.me.trammel)
+    (use '[trammel.core :only (defconstrainedrecord)])
     
     (defconstrainedrecord Foo [a 1 b 2]
       [(every? number? [a b])]
@@ -56,7 +56,7 @@ Example
 
 ### Type Invariants
 
-    (use 'fogus.me.trammel)
+    (use '[trammel.core :only (defconstrainedtype)])
     
     (defconstrainedtype Foo [a 1 b 2]
       [(every? number? [a b])])
