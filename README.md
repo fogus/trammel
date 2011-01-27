@@ -11,7 +11,7 @@ Example
 
 ### Function Contracts
 
-    (require 'trammel.provide)
+    (require '[trammel.provide :as provide])
     
     (defn sqr [n] (* n n))
     
