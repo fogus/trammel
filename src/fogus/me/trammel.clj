@@ -45,8 +45,9 @@
 
 (defn- build-pre-post-map
   "Takes a vector of the form `[pre ... => post ...]` and infers the expectations described
-   therein.  The map that comes out will look like Clojure's default pre- and post-conditions
-   map.
+   therein.  The map that comes out will look like Clojure's default pre- anlein d post-conditions
+   map.  If the argument is already a map then it's assumed that the default pre/post map is used and
+   as a result is used directly without manipulation.
   "
   [cnstr]
   (if (vector? cnstr)
@@ -176,16 +177,18 @@
    the keyword `:constraints`.
   "
   [n docstring & constraints]
-  (let [raw-cnstr   (partition 2 constraints)
-        arity-cnstr (for [[a c] raw-cnstr]
-                      (build-constraints-map a c))
-        fn-arities  (for [b arity-cnstr]
-                      (build-contract docstring b))
-        body (list* 'fn n fn-arities)]
-    `(with-meta 
-       ~body
-       {:constraints (into {} '~arity-cnstr)
-        :docstring ~docstring})))
+  (if (not (string? docstring))
+    (throw (IllegalArgumentException. "Sorry, but contracts require docstrings"))
+    (let [raw-cnstr   (partition 2 constraints)
+          arity-cnstr (for [[a c] raw-cnstr]
+                        (build-constraints-map a c))
+          fn-arities  (for [b arity-cnstr]
+                        (build-contract docstring b))
+          body (list* 'fn n fn-arities)]
+      `(with-meta 
+         ~body
+         {:constraints (into {} '~arity-cnstr)
+          :docstring ~docstring}))))
 
 (defn with-constraints
   "A contract combinator.
@@ -261,7 +264,7 @@
            (= t# (type r#))))
 
        (let [chk# (contract ~(symbol (str "chk-" name))
-                            (str "Invariant contract for " (str ~name)) 
+                            ~(str "Invariant contract for " name) 
                             [{:keys ~fields :as m#}] ~invariants)]
          (defconstrainedfn ~factory-name
            ([] [] (with-meta 
