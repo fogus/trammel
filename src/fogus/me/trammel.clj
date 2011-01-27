@@ -227,9 +227,9 @@
                 body)
         body  (for [[args cnstr & bd] body]
                 (list* args
-                       (if (map? cnstr)
-                         cnstr
-                         (second (build-constraints-map args cnstr)))
+                       (if (vector? cnstr)
+                         (second (build-constraints-map args cnstr))
+                         cnstr)
                        bd))]
     `(defn ~name
        ~(if (:doc mdata) (:doc mdata) "")
