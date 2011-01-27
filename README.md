@@ -75,7 +75,7 @@ Getting
 
 Modify your [Leiningen](http://github.com/technomancy/leiningen) dependencies to include Trammel:
 
-    :dependencies [[trammel "0.4.6"] ...]    
+    :dependencies [[trammel "0.5.0"] ...]    
 
 ### Maven
 
@@ -84,7 +84,7 @@ Add the following to your `pom.xml` file:
     <dependency>
       <groupId>trammel</groupId>
       <artifactId>trammel</artifactId>
-      <version>0.4.6</version>
+      <version>0.5.0</version>
     </dependency>
 
 Notes

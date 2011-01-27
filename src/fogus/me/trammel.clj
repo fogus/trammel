@@ -143,6 +143,8 @@
    
        (def doubler-contract
          (contract doubler
+           “Ensures that when given a number,
+            the result is doubled.”
            [x] [number? => (= (* 2 x) %)]
 
            [x y] [(every? number? [x y])
@@ -240,18 +242,6 @@
        ~(if (:doc mdata) (:doc mdata) "")
        ~@body)))
 
-(defmacro provide-contracts [& contracts]
-  (let [fn-names  (map first contracts)
-        contracts (for [[n ds & more] contracts] 
-                    (if (vector? (first more)) 
-                      (list* `contract n ds more) 
-                      (first more)))]
-    `(do
-      ~@(for [[n# c#] (zipmap fn-names contracts)]
-          (list `alter-var-root (list `var n#) 
-                (list `fn '[f c] (list `with-constraints 'f 'c)) c#))
-      nil)))
-
 (defmacro defconstrainedrecord
   [name slots invariants & etc]
   (let [fields       (->> slots (partition 2) (map first) vec)
@@ -278,7 +268,8 @@
                 {:contract chk#}))))
        ~name)))
 
-(defn- apply-contract [f]
+(defn- apply-contract
+  [f]
   (if (:hooked (meta f))
     f
     (with-meta
