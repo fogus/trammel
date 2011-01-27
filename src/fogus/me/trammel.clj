@@ -13,18 +13,6 @@
 (ns fogus.me.trammel
   "The core contracts programming functions and macros for Trammel.")
 
-;; # constraint functions and multimethods
-
-(def all-numbers?  #(every? number? %&))
-(def all-positive? #(and (apply all-numbers? %&) (every? pos? %&)))
-(def all-negative? #(and (apply all-numbers? %&) (every? (complement pos?) %&)))
-(defn anything [& _] true)
-
-(defn in [e & args] (some #{e} (mapcat #(if (vector? %) 
-                                          (apply range %) 
-                                          [%]) 
-                                       args)))
-
 ;; # base functions and macros
 
 (defn- keys-apply
