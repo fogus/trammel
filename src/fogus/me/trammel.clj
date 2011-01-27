@@ -49,9 +49,11 @@
    map.
   "
   [cnstr]
-  (let [[L M R] (partition-by #{'=>} cnstr)]
-    {:pre  (when (not= L '(=>)) L)
-     :post (if (= L '(=>)) M R)}))
+  (if (vector? cnstr)
+    (let [[L M R] (partition-by #{'=>} cnstr)]
+      {:pre  (when (not= L '(=>)) L)
+       :post (if (= L '(=>)) M R)})
+    cnstr))
 
 (declare funcify)
 (defmulti funcify* (fn [e _] (class e)))
