@@ -11,7 +11,8 @@
 ; agreeing to be bound by the terms of this license.  You must not
 ; remove this notice, or any other, from this software.
 (ns trammel.core
-  "The core contracts programming functions and macros for Trammel.")
+  "The core contracts programming functions and macros for Trammel."
+  (:use trammel.factors))
 
 ;; # base functions and macros
 
@@ -54,6 +55,7 @@
 (defmethod funcify* :default                [e args] (case (first e) 
                                                        'or (list* 'or (funcify args (rest e)))
                                                        'in (concat (list* 'in args) (rest e))
+                                                       'whitelist (concat (list* 'whitelist args) (rest e))
                                                        e))
 
 (defn- funcify
