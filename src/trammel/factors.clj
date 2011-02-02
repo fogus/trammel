@@ -2,12 +2,11 @@
   "Provides some common argument checkers and factorings."
   (:require [clojure.set  :as set]))
 
-
 ;; # constraint functions and multimethods
 
-(def all-numbers?  #(every? number? %&))
-(def all-positive? #(and (apply all-numbers? %&) (every? pos? %&)))
-(def all-negative? #(and (apply all-numbers? %&) (every? (complement pos?) %&)))
+(def all-numbers?  #(boolean (every? number? %&)))
+(def all-positive? #(boolean (and (apply all-numbers? %&) (every? pos? %&))))
+(def all-negative? #(boolean (and (apply all-numbers? %&) (every? (complement pos?) %&))))
 (defn anything [& _] true)
 
 (defn in
@@ -15,11 +14,12 @@
    used most effectively for numbers since any numbers in a vector represent
    a range of values determined by the same arguments as given to `range`."
   [e & args]
-  (some #{e}
-        (mapcat #(if (vector? %) 
-                   (apply range %) 
-                   [%]) 
-                args)))
+  (boolean
+   (some #{e}
+         (mapcat #(if (vector? %) 
+                    (apply range %) 
+                    [%]) 
+                 args))))
 
 (def truthy #(when % true))
 (def falsey #(not (truthy %)))
