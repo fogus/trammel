@@ -12,7 +12,7 @@
 ; remove this notice, or any other, from this software.
 (ns trammel.core
   "The core contracts programming functions and macros for Trammel."
-  (:use trammel.factors))
+  (:use [trammel.funcify :only (funcify)]))
 
 ;; # base functions and macros
 
@@ -44,27 +44,6 @@
       {:pre  (when (not= L '(=>)) L)
        :post (if (= L '(=>)) M R)})
     cnstr))
-
-(declare funcify)
-(defmulti funcify* (fn [e _] (class e)))
-
-(defmethod funcify* clojure.lang.IFn        [e args] (list* e args))
-(defmethod funcify* java.util.regex.Pattern [e args] (list* 'clojure.core/re-matches e args))
-(defmethod funcify* java.lang.String        [e args] (list* 'clojure.core/= e args))
-(defmethod funcify* java.lang.Number        [e args] (list* 'clojure.core/= e args))
-(defmethod funcify* :default                [e args] (case (first e) 
-                                                       'or (list* 'or (funcify args (rest e)))
-                                                       'in (concat (list* 'in args) (rest e))
-                                                       'whitelist (concat (list* 'whitelist args) (rest e))
-                                                       e))
-
-(defn- funcify
-  "Performs the *magic* of the Trammel syntax.  That is, it currently identifies isolated functions and
-   wraps them in a list with the appropriate args.  It also recognizes keywords and does the same under 
-   the assumption that a map access is required.  It then returns the vector of calls expected by the
-   Clojure pre- and post-conditions map."
-  [args cnstr]
-  (vec (map #(funcify* % args) cnstr)))
 
 (defn- build-constraints-map 
   "Takes the corresponding arglist and a vector of the contract expectations, the latter of which looks 

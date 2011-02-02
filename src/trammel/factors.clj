@@ -1,6 +1,7 @@
 (ns trammel.factors
   "Provides some common argument checkers and factorings."
-  (:require [clojure.set :as set]))
+  (:require [clojure.set  :as set]))
+
 
 ;; # constraint functions and multimethods
 
@@ -29,4 +30,3 @@
   [wl things]
   (set/subset? (set (keys things))
                (set wl)))
-
