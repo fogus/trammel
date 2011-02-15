@@ -12,7 +12,8 @@
 ; remove this notice, or any other, from this software.
 (ns trammel.core
   "The core contracts programming functions and macros for Trammel."
-  (:use [trammel.funcify :only (funcify)]))
+  (:use [trammel.funcify :only (funcify)])
+  (:use trammel.factors))
 
 ;; # base functions and macros
 
@@ -21,8 +22,13 @@
    A new map of the results of the function applied to the keyed entries is returned.
   "
   [f ks m]
+  {:pre  [(or (fn? f) (keyword? f) (symbol? f))
+          (except (coll? ks) (map? ks))
+          (map? m)]
+   :post [(map? %)]}
   (let [only (select-keys m ks)] 
-    (zipmap (keys only) (map f (vals only)))))
+    (zipmap (keys only)
+            (map f (vals only)))))
 
 (defn- manip-map
   "Takes a function, a set of keys, and a map and applies the function to the map on the given keys.  
@@ -30,6 +36,11 @@
    keyed entry.
   "
   [f ks m]
+  {:pre  [(or (fn? f) (keyword? f) (symbol? f))
+          (except (coll? ks) (map? ks))
+          (map? m)]
+   :post [(map? %)
+          (= (keys %) (keys m))]}  
   (conj m (keys-apply f ks m)))
 
 (defn- build-pre-post-map

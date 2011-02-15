@@ -30,3 +30,29 @@
   [wl things]
   (set/subset? (set (keys things))
                (set wl)))
+
+(defn implies
+  "Logical implication"
+  [p q]
+  (or (not p) q))
+
+(defn <-
+  "Converse implication"
+  [p q]
+  (implies q p))
+
+(defn except
+  "P except Q"
+  [p q]
+  (not (implies p q)))
+
+(defn <=>
+  "Logical equality"
+  [p q]
+  (and (implies p q)
+       (<- p q)))
+
+(defn xor
+  "Exclusive or"
+  [p q]
+  (not (<=> p q)))
