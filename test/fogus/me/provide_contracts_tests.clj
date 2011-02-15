@@ -25,7 +25,7 @@
 (deftest apply-contracts-test
   (is (= 25 (sqr 5)))
   (is (= 25 (sqr -5)))
-  (is (thrown? Error (sqr 0))))
+  (is (thrown? AssertionError (sqr 0))))
 
 (defn sqr2 [n]
   (* n n))
@@ -40,4 +40,21 @@
 (deftest apply-existing-contract-test
   (is (= 25 (sqr2 5)))
   (is (= 25 (sqr2 -5)))
-  (is (thrown? Error (sqr2 0))))
+  (is (thrown? AssertionError (sqr2 0))))
+
+(defn times2
+  ([x] (* 2 x))
+  ([x y] (* y x 2)))
+
+(provide/contracts
+ [times2 "The constraining of times2"
+  [n]   [number? => number? (== % (* 2 n))]
+  [x y] [(every? number? [x y]) => number? (== % (* x y 2))]])
+
+(deftest apply-contract-arity2-test
+  (is (= 10 (times2 5)))
+  (is (= -10 (times2 -5)))
+  (is (thrown? AssertionError (times2 :a)))
+  (is (= 20 (times2 2 5)))
+  (is (= -20 (times2 -5 2)))
+  (is (thrown? AssertionError (times2 5 :a))))

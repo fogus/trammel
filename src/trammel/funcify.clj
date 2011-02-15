@@ -1,6 +1,4 @@
-(ns trammel.funcify
-  (:require [trammel.core    :as trammel])
-  (:require [trammel.factors :as factors]))
+(ns trammel.funcify)
 
 
 (declare funcify*)

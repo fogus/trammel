@@ -10,6 +10,7 @@
                     (if (vector? (first more)) 
                       (list* `contract n ds more) 
                       (first more)))]
+    (println kontracts)
     `(do
        ~@(for [[n# c#] (zipmap fn-names kontracts)]
            (list `alter-var-root (list `var n#) 

@@ -277,4 +277,3 @@
            (~fields ~invariants
               (~ctor-name ~@fields))))
        ~name)))
-
