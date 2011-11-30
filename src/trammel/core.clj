@@ -281,7 +281,7 @@
            (= t# (type r#))))
        
        (let [chk# (contract ~(symbol (str "chk-" name))
-                            (str "Invariant contract for " (str ~name)) 
+                            ~(str "Invariant contract for " name) 
                             [{:keys ~fields :as m#}] ~invariants)]
          (defconstrainedfn ~factory-name
            ([] [] (~ctor-name ~@defaults))
