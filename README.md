@@ -11,6 +11,7 @@ Example
 
 ### Function Contracts
 
+```clojure
     (require '[trammel.provide :as provide])
     
     (defn sqr [n] (* n n))
@@ -28,9 +29,11 @@ Example
     ;=> 100
     (sqr 0)
     ; java.lang.AssertionError: Assert failed: (not= 0 x)
+```
 
 ### Record Invariants
 
+```clojure
     (use '[trammel.core :only (defconstrainedrecord)])
     
     (defconstrainedrecord Foo [a 1 b 2]
@@ -53,9 +56,11 @@ Example
     ;; invariants on records checked at runtime    
     (assoc (new-Foo) :a "foo")
     ; Assert failed: (every? number? [a b])
+```
 
 ### Type Invariants
 
+```clojure
     (use '[trammel.core :only (defconstrainedtype)])
     
     (defconstrainedtype Foo [a 1 b 2]
@@ -67,6 +72,7 @@ Example
     ;; invariants on types checked at constructions time
     (new-Foo 1 :b)
     ; Assert failed: (every? number? [a b])
+```
 
 Getting
 -------
@@ -75,17 +81,21 @@ Getting
 
 Modify your [Leiningen](http://github.com/technomancy/leiningen) dependencies to include Trammel:
 
+```clojure
     :dependencies [[trammel "0.5.0"] ...]    
+```
 
 ### Maven
 
 Add the following to your `pom.xml` file:
 
+```xml
     <dependency>
       <groupId>trammel</groupId>
       <artifactId>trammel</artifactId>
       <version>0.5.0</version>
     </dependency>
+```
 
 Notes
 -----
@@ -127,19 +137,21 @@ Emacs
 
 Add the following to your .emacs file for better Trammel formatting:
 
+```lisp
     (eval-after-load 'clojure-mode
       '(define-clojure-indent
          (contract 'defun)
          (defconstrainedfn 'defun)
          (defcontract 'defun)
          (provide 'defun)))
-
+```
 
 Example REPL Session
 --------------------
 
 Type the following into a REPL session to see how Trammel might be used.
 
+```clojure
     (defconstrainedtype Bar 
       [a 4 b 8] 
       [(every? pos? [a b])])
@@ -181,3 +193,4 @@ Type the following into a REPL session to see how Trammel might be used.
       (Math/sqrt x))
     
     (* (sqrt 30) (sqrt 30))
+```
