@@ -273,7 +273,7 @@
   [name slots invariants & etc]
   (let [fields       (vec slots)
         ctor-name    (symbol (str name \.))
-        factory-name (symbol (str "new-" name))]
+        factory-name (symbol (str "->" name))]
     `(do
        (let [t# (deftype ~name ~fields ~@etc)]
          (defn ~(symbol (str name \?)) [r#]
