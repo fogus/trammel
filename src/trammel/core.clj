@@ -283,20 +283,18 @@
 
 (defmacro defconstrainedtype
   [name slots invariants & etc]
-  (let [fields       (->> slots (partition 2) (map first) vec)
-        defaults     (->> slots (partition 2) (map second))
+  (let [fields       (vec slots)
         ctor-name    (symbol (str name \.))
-        factory-name (symbol (str "new-" name))]
+        factory-name (symbol (str "->" name))]
     `(do
        (let [t# (deftype ~name ~fields ~@etc)]
          (defn ~(symbol (str name \?)) [r#]
            (= t# (type r#))))
        
        (let [chk# (contract ~(symbol (str "chk-" name))
-                            (str "Invariant contract for " (str ~name)) 
+                            ~(str "Invariant contract for " name) 
                             [{:keys ~fields :as m#}] ~invariants)]
          (defconstrainedfn ~factory-name
-           ([] [] (~ctor-name ~@defaults))
            (~fields ~invariants
               (~ctor-name ~@fields))))
        ~name)))
