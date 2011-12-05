@@ -39,19 +39,19 @@ Example
       (toString [this] (str "record Foo has " a " and " b)))
     
     ;; default ctor with default values
-    (new-Foo)
+    (->Foo)
     ;=> #:user.Foo{:a 1, :b 2}
     
     ;; kwarg ctor
-    (new-Foo :a 42)
+    (->Foo :a 42)
     ;=> #:user.Foo{:a 42, :b 2}
     
     ;; use like any other map/record
-    (assoc (new-Foo) :a 88 :c "foo")
+    (assoc (->Foo) :a 88 :c "foo")
     ;=> #:user.Foo{:a 88, :b 2, :c "foo"}
     
     ;; invariants on records checked at runtime    
-    (assoc (new-Foo) :a "foo")
+    (assoc (->Foo) :a "foo")
     ; Assert failed: (every? number? [a b])
 
 ### Type Invariants
@@ -61,11 +61,11 @@ Example
     (defconstrainedtype Foo [a 1 b 2]
       [(every? number? [a b])])
     
-    (new-Foo)
+    (->Foo)
     #<Foo user.Foo@73683>
     
     ;; invariants on types checked at constructions time
-    (new-Foo 1 :b)
+    (->Foo 1 :b)
     ; Assert failed: (every? number? [a b])
 
 Getting
@@ -144,7 +144,7 @@ Type the following into a REPL session to see how Trammel might be used.
       [a 4 b 8] 
       [(every? pos? [a b])])
     
-    (Bar? (new-Bar))
+    (Bar? (->Bar))
     
     (defn sqr [n] (* n n))
     
@@ -156,12 +156,12 @@ Type the following into a REPL session to see how Trammel might be used.
 
     (positive-nums -1)
 
-    (type (new-Bar))
+    (type (->Bar))
     
-    (.a (new-Bar  42 77))
-    (.b (new-Bar  42 77))
-    (.a (new-Bar -42 77))
-    (.b (new-Bar  42 -77))
+    (.a (->Bar  42 77))
+    (.b (->Bar  42 77))
+    (.a (->Bar -42 77))
+    (.b (->Bar  42 -77))
 
     (defconstrainedfn sqrt
       [x] [(>= x 0) => (>= % 0)]

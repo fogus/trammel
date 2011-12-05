@@ -13,7 +13,19 @@
 (ns trammel.core
   "The core contracts programming functions and macros for Trammel."
   (:use [trammel.funcify :only (funcify)])
-  (:use trammel.factors))
+  (:use trammel.factors)
+  (:use [evalive.core :only (lexical-context)]))
+
+;; HOF support
+
+(defrecord HOC [argspec ctx])
+
+(defmacro _ [& argspec]
+  `(HOC. (vec '~argspec) nil))
+
+(comment
+  (_ even? number? => number?)  
+)
 
 ;; # base functions and macros
 
@@ -219,7 +231,7 @@
                          cnstr)
                        bd))]
     `(defn ~name
-       ~(if (:doc mdata) (:doc mdata) "")
+       ~(str (:doc mdata))
        ~@body)))
 
 (defmacro defconstrainedrecord
@@ -227,7 +239,7 @@
   (let [fields       (->> slots (partition 2) (map first) vec)
         defaults     (->> slots (partition 2) (map second))
         ctor-name    (symbol (str name \.))
-        factory-name (symbol (str "new-" name))]
+        factory-name (symbol (str "->" name))]
     `(do
        (let [t# (defrecord ~name ~fields ~@etc)]
          (defn ~(symbol (str name \?)) [r#]
@@ -288,3 +300,25 @@
            (~fields ~invariants
               (~ctor-name ~@fields))))
        ~name)))
+
+(comment
+  (use 'trammel.factors)
+  
+  (defconstrainedfn leap-year?
+    [year],[number? pos? =>]
+    (and (= (mod year 4) 0)
+         (not (some #{(mod year 400)}
+                    [100 200 300]))))
+
+  (leap-year? 111)
+  (let [year 0]
+    (in (mod year 400)
+        100 200 300))
+
+  (defconstrainedfn sqr
+    [n],[number? => pos? number?]
+    (* n n))
+
+  (sqr 0)
+)
+
