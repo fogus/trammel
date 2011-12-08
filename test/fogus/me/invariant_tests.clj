@@ -39,7 +39,7 @@
 
 (deftest test-constrained-type-with-vector-spec
   (is (= (.a (->Bar 1 2)) 1))
-  (is (= (:b (->Bar 1 2)) 2))
+  (is (= (.b (->Bar 1 2)) 2))
   (is (thrown? Error (->Bar :a :b))))
 
 ;; testing default clojure pre/post maps
