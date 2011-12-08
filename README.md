@@ -63,10 +63,10 @@ Example
 ```clojure
     (use '[trammel.core :only (defconstrainedtype)])
     
-    (defconstrainedtype Foo [a 1 b 2]
+    (defconstrainedtype Foo [a b]
       [(every? number? [a b])])
     
-    (->Foo)
+    (->Foo 1 2)
     #<Foo user.Foo@73683>
     
     ;; invariants on types checked at constructions time
@@ -152,11 +152,12 @@ Example REPL Session
 Type the following into a REPL session to see how Trammel might be used.
 
 ```clojure
+
     (defconstrainedtype Bar 
-      [a 4 b 8] 
+      [a b] 
       [(every? pos? [a b])])
     
-    (Bar? (->Bar))
+    (Bar? (->Bar 1 2))
     
     (defn sqr [n] (* n n))
     
