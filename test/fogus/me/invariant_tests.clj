@@ -12,7 +12,7 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.invariant-tests
-  (:use [trammel.core :only [defconstrainedrecord]])
+  (:use [trammel.core :only [defconstrainedrecord defconstrainedtype]])
   (:use [clojure.test :only [deftest is]]))
 
 
@@ -20,6 +20,9 @@
   [(every? number? [a b])]
   Object
   (toString [this] (str "record Foo has " a " and " b)))
+
+(defconstrainedtype Bar [a b]
+  [(every? number? [a b])])
 
 (deftest test-constrained-record-with-vector-spec
   (is (= (:a (->Foo)) 1))
@@ -33,6 +36,11 @@
   (is (= (:c (->Foo :a 42 :b 108 :c 36)) 36))
   (is (thrown? Error (->Foo :a :b)))
   (is (thrown? Error (->Foo :a 42 :b nil))))
+
+(deftest test-constrained-type-with-vector-spec
+  (is (= (.a (->Bar 1 2)) 1))
+  (is (= (:b (->Bar 1 2)) 2))
+  (is (thrown? Error (->Bar :a :b))))
 
 ;; testing default clojure pre/post maps
 
