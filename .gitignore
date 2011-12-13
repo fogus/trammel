@@ -1,4 +1,5 @@
-docs
+docs/site/out
+uberdoc.html
 pom.xml
 lib
 ._*
