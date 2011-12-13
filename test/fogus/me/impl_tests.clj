@@ -14,7 +14,7 @@
 (ns fogus.me.impl-tests
   (:use [clojure.test :only [deftest is]]))
 
-(def *expectations-table*
+(def ^:dynamic *expectations-table*
      [{:expect '{:pre [(every? foo [x]) (bar x)] :post [(baz %) (quux %)]}
        :body   '{:requires ((every? foo [x]) (bar x)) :ensures ((baz %) (quux %))}}
 

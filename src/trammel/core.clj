@@ -13,8 +13,7 @@
 (ns trammel.core
   "The core contracts programming functions and macros for Trammel."
   (:use [trammel.funcify :only (funcify)])
-  (:use trammel.factors)
-  (:use [evalive.core :only (lexical-context)]))
+  (:use trammel.factors))
 
 ;; HOF support
 
