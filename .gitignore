@@ -8,3 +8,4 @@ classes
 doc/site/out
 webgen.cache
 .DS_Store
+.lein*
