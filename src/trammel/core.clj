@@ -23,7 +23,7 @@
   `(HOC. (vec '~argspec) nil))
 
 (comment
-  (_ even? number? => number?)  
+  (_ even? number? => number?)
 )
 
 ;; # base functions and macros
@@ -87,6 +87,7 @@
         (manip-map (partial funcify '[%]) [:post])
         (manip-map (partial funcify args) [:pre]))])
 
+
 (defn- build-contract 
   "Expects a seq representing an arity-based expectation of the form:
 
@@ -125,6 +126,10 @@
              ret#))
           (catch AssertionError post#
             (throw (AssertionError. (str "Post-condition failure in " ~n "! " (.getMessage post#))))))))))
+
+(comment
+  (build-contract 'hof (build-constraints-map '[n] (:argspec (_ even? number? => number?))))
+)
 
 (defmacro contract
   "The base contract form returning a higher-order function that can then be partially
