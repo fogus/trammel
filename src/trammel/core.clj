@@ -17,13 +17,13 @@
 
 ;; HOF support
 
-(defrecord HOC [argspec ctx])
+(defrecord HOC [args argspec ctx])
 
-(defmacro _ [& argspec]
-  `(HOC. (vec '~argspec) nil))
+(defmacro _ [args & argspec]
+  `(HOC. '~args (vec '~argspec) nil))
 
 (comment
-  (_ even? number? => number?)
+  (_ [n] even? number? => number?)
 )
 
 ;; # base functions and macros
@@ -128,7 +128,8 @@
             (throw (AssertionError. (str "Post-condition failure in " ~n "! " (.getMessage post#))))))))))
 
 (comment
-  (build-contract 'hof (build-constraints-map '[n] (:argspec (_ even? number? => number?))))
+  (let [hoc (_ [n] even? number? => number?)]
+    (build-contract 'hof (build-constraints-map (:args hoc) (:argspec hoc))))
 )
 
 (defmacro contract
