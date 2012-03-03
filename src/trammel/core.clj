@@ -10,6 +10,7 @@
 ; distribution.  By using this software in any fashion, you are
 ; agreeing to be bound by the terms of this license.  You must not
 ; remove this notice, or any other, from this software.
+
 (ns trammel.core
   "The core contracts programming functions and macros for Trammel."
   (:use [trammel.funcify :only (funcify)])
