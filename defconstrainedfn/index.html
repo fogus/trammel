@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Trammel Home</title>
+    <meta name="description" content="Trammel - a contracts-programming library for Clojure"/>
+    <meta name="keywords" content="contracts programming, clojure, eiffel"/>
+    <meta name="author" content="Fogus"/>
+    <meta name="generator" content="webgen - http://webgen.rubyforge.com/"/>
+    <meta name="robots" content="index,follow,archive"/>
+
+    <link rel="icon" href="http://blog.fogus.me/images/labyrinth.ico" type="image/x-icon"/>
+    <link href="../default.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <div id="rinich"> 
+    <div class="log"> 
+      <h1><a href="http://fogus.me/fun/trammel">Trammel</a></h1> 
+      <div class="description">a contracts-programming library for <a href="http://clojure.org">Clojure</a></div>
+     
+      <div class="item"> 
+        <h4>Contracts Programming</h4>            
+        <div class="citation"><p>the relationship between a class and
+        its clients as a formal agreement, expressing each party's
+        rights and obligations</p></div>
+        <div class="citation"><a href="http://en.wikipedia.org/wiki/Bertrand_Meyer">Bertrand Meyer</a></div> 
+      
+        <a class="more" href="http://fogus.me/fun/trammel/cp.html">read more</a>
+      </div> 
+   
+      <div class="item"> 
+        
+<h3 id="defconstrainedfn">defconstrainedfn</h3>
+
+<p>Defining a function with an associated contract is similar to the way that one <a href="http://richhickey.github.com/clojure/clojure.core-api.html#clojure.core/defn">defines a regular Clojure function</a>:</p>
+
+<div class="gist">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">defconstrainedfn</span> <span class="nv">sqr</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="s">"Squares a number"</span></div><div class="line" id="LC3">&nbsp;&nbsp;<span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">[(</span><span class="nf">number?</span> <span class="nv">n</span><span class="p">)</span> <span class="p">(</span><span class="nb">not= </span><span class="mi">0</span> <span class="nv">n</span><span class="p">)</span> <span class="c1">;; requires/domain</span></div><div class="line" id="LC4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">=&gt;</span> </div><div class="line" id="LC5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nb">pos? </span><span class="nv">%</span><span class="p">)</span> <span class="p">(</span><span class="nf">number?</span> <span class="nv">%</span><span class="p">)]</span>  <span class="c1">;; ensures/range</span></div><div class="line" id="LC6">&nbsp;&nbsp;<span class="p">(</span><span class="nb">* </span><span class="nv">n</span> <span class="nv">n</span><span class="p">))</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
+
+<p>Simply put this definition states the expectations on the <strong>domain</strong> and the <strong>range</strong> of a function, per function arity:</p>
+
+<pre><code>(defn a-function 
+  [args] [DOMAIN =&gt; RANGE]
+  ...)
+</code></pre>
+
+<p>Or to put it another way, it describes what arguments a function <strong>requires</strong> in order to <strong>ensure</strong> accuracy:</p>
+
+<pre><code>(defn a-function 
+  [args] [REQUIRES =&gt; ENSURES]
+  ...)
+</code></pre>
+
+<p>Disecting the definition of <code>sqr</code> you can see how Trammel operates:</p>
+
+<ul>
+  <li>Define a named function <code>sqr</code></li>
+  <li><code>sqr</code> takes a single argument <code>n</code></li>
+  <li><code>sqr</code> <em>requires</em> that <code>n</code> be a number not equal to zero</li>
+  <li><code>sqr</code> <em>ensures</em> that it will return a positive number</li>
+  <li><code>sqr</code> performs the action <code>(* n n)</code></li>
+</ul>
+
+<p>You can see this in action below:</p>
+
+<div class="gist" id="gist-450297">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">5</span><span class="p">)</span></div><div class="line" id="LC2"><span class="c1">;=&gt; 25</span></div><div class="line" id="LC3"><br /></div><div class="line" id="LC4"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">-5</span><span class="p">)</span></div><div class="line" id="LC5"><span class="c1">;=&gt; 25</span></div><div class="line" id="LC6"><br /></div><div class="line" id="LC7"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">0</span><span class="p">)</span></div><div class="line" id="LC8"><span class="c1">; java.lang.AssertionError: Assert failed: <br />   (not (zero? n))</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
+
+<p>As you might expect given the contract, the calls to <code>sqr</code> with <code>5</code> and <code>-5</code> succeed but the call with <code>0</code> fails.  The example of <code>sqr</code> is the simplest model for defining a function adhering to a contract.  However, you can also define a function allowing different argument arities, as seen below:</p>
+
+<div class="gist" id="gist-450297">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">defconstrainedfn</span> <span class="nv">doubler</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="s">"Defines a function that doubles its input."</span></div><div class="line" id="LC3">&nbsp;&nbsp;<span class="p">([</span><span class="nv">n</span><span class="p">]</span> <span class="p">[(</span><span class="nf">number?</span> <span class="nv">n</span><span class="p">)</span> <span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="nv">n</span><span class="p">)</span> <span class="nv">%</span><span class="p">)]</span></div><div class="line" id="LC4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="nv">n</span><span class="p">))</span></div><div class="line" id="LC5"><br /></div><div class="line" id="LC6">&nbsp;&nbsp;<span class="p">([</span><span class="nv">x</span> <span class="nv">y</span><span class="p">]</span> <span class="p">[(</span><span class="nb">every? </span><span class="nv">number?</span> <span class="p">[</span><span class="nv">x</span> <span class="nv">y</span><span class="p">])</span></div><div class="line" id="LC7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">=&gt;</span></div><div class="line" id="LC8">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nf">number?</span> <span class="nv">%</span><span class="p">)</span></div><div class="line" id="LC9">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="nv">y</span><span class="p">))</span> <span class="nv">%</span><span class="p">)]</span></div><div class="line" id="LC10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="nv">y</span><span class="p">))))</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
+
+<p>The form of the contract for <code>doubler</code> is more involved, but its meaning is still straight-forward:</p>
+
+<ul>
+  <li>Define a function named <code>doubler</code> that takes either one or two arguments</li>
+  <li>The first form of <code>doubler</code> takes a single argument <code>n</code>
+    <ul>
+      <li><code>doubler</code> <em>requires</em> that <code>n</code> be a number</li>
+      <li><code>doubler</code> <em>ensures</em> that it returns the double of <code>n</code> &ndash; which it does by executing <code>(* 2 n)</code></li>
+    </ul>
+  </li>
+  <li>The second form of <code>doubler</code> takes two arguments <code>x</code> and <code>y</code>
+    <ul>
+      <li><code>doubler</code> <em>requires</em> that <code>x</code> and <code>y</code> both be numbers</li>
+      <li><code>doubler</code> <em>ensures</em> that it returns the double of the sum of <code>x</code> and <code>y</code> &ndash; which it does by executing <code>(* 2 (+ x y))</code></li>
+    </ul>
+  </li>
+</ul>
+
+<p>You can also use isolated functions in the body of the constraints and the arguments specified in the enclosing arity specification will be passed into it implicitely, as seen below:</p>
+
+<div class="gist" id="gist-450297">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">defconstrainedfn</span> <span class="nv">sqr</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="s">"Squares a number"</span></div><div class="line" id="LC3">&nbsp;&nbsp;<span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">[</span><span class="nv">number?</span> <span class="p">(</span><span class="nb">not= </span><span class="mi">0</span> <span class="nv">n</span><span class="p">)</span> <span class="nv">=&gt;</span> <span class="nv">pos?</span> <span class="nv">number?</span><span class="p">]</span></div><div class="line" id="LC4">&nbsp;&nbsp;<span class="p">(</span><span class="nb">* </span><span class="nv">n</span> <span class="nv">n</span><span class="p">))</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
+
+<p>And that&rsquo;s all there is to it.</p>
+
+<p><a href="../docs.html">return to documentation</a></p>
+
+      </div> 
+
+      <a class="button" href="http://clojars.org/trammel">clojars &rarr;</a>
+      <a class="button" href="http://github.com/fogus/trammel">source code &rarr;</a>
+      <a class="button" href="http://github.com/fogus/trammel/issues">tickets &rarr;</a>
+      <a class="button" href="http://wiki.github.com/fogus/trammel">wiki &rarr;</a>
+
+    <div class="footer">
+      &copy; 2010 Michael Fogus <br/>
+      theme based on a design by <a href="http://rinich.tumblr.com">Rory Marinich</a>
+    </div> 
+  </div> 
+</div>
+
+<script type="text/javascript"> 
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script> 
+<script type="text/javascript"> 
+try {
+var pageTracker = _gat._getTracker("UA-921112-2");
+pageTracker._trackPageview();
+} catch(err) {}
+</script> 
+</body>
+</html>

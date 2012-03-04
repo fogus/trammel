@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Trammel Home</title>
+    <meta name="description" content="Trammel - a contracts-programming library for Clojure"/>
+    <meta name="keywords" content="contracts programming, clojure, eiffel"/>
+    <meta name="author" content="Fogus"/>
+    <meta name="generator" content="webgen - http://webgen.rubyforge.com/"/>
+    <meta name="robots" content="index,follow,archive"/>
+
+    <link rel="icon" href="http://blog.fogus.me/images/labyrinth.ico" type="image/x-icon"/>
+    <link href="../default.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <div id="rinich"> 
+    <div class="log"> 
+      <h1><a href="http://fogus.me/fun/trammel">Trammel</a></h1> 
+      <div class="description">a contracts-programming library for <a href="http://clojure.org">Clojure</a></div>
+     
+      <div class="item"> 
+        <h4>Contracts Programming</h4>            
+        <div class="citation"><p>the relationship between a class and
+        its clients as a formal agreement, expressing each party's
+        rights and obligations</p></div>
+        <div class="citation"><a href="http://en.wikipedia.org/wiki/Bertrand_Meyer">Bertrand Meyer</a></div> 
+      
+        <a class="more" href="http://fogus.me/fun/trammel/cp.html">read more</a>
+      </div> 
+   
+      <div class="item"> 
+        
+<p>While defining contracts local to the constrained function is nice (see <a href="../defconstrainedfn/index.html"><code>defconstrainedfn</code></a> for more information), very often you will find yourself in possession of an existing function that is not constrained:</p>
+
+<div class="gist">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC3"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">0</span><span class="p">)</span></div><div class="line" id="LC4"><span class="c1">;=&gt; 0</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
+
+<p>In this case, Trammel provides the <code>provide-contracts</code> macro to define contracts and apply them dynamically to existing functions:</p>
+
+<div class="gist">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">provide-contracts</span> </div><div class="line" id="LC2">&nbsp;&nbsp;<span class="p">[</span><span class="nv">sqr</span> <span class="s">"Constraints for squaring"</span> </div><div class="line" id="LC3">&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">[</span><span class="nv">x</span><span class="p">]</span> <span class="p">[</span><span class="nv">number?</span> <span class="p">(</span><span class="nb">not= </span><span class="mi">0</span> <span class="nv">x</span><span class="p">)</span> <span class="nv">=&gt;</span> <span class="nv">number?</span> <span class="nv">pos?</span><span class="p">]])</span></div><div class="line" id="LC4"><br /></div><div class="line" id="LC5"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">0</span><span class="p">)</span></div><div class="line" id="LC6"><span class="c1">; java.lang.AssertionError: </span></div><div class="line" id="LC7"><span class="c1">;   Assert failed: (not= 0 n)</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
+
+<p>As shown, the <code>sqr</code> function is dynamically modified with the contract defined in the body of <code>provide-contracts</code>.  This macro can take any number of vectors where each corresponds to a contract for a given function; including multiple arities embedded within.  Trammel also allows you to include existing <em>named</em> contracts (see <a href="../defcontract/index.html"><code>defcontract</code></a> for more information) instead of the contract specification vector, as shown below:</p>
+
+<div class="gist">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">defcontract</span> <span class="nv">sqr-contract</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="s">"Defines the constraints on squaring."</span></div><div class="line" id="LC3">&nbsp;&nbsp;<span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">[</span><span class="nv">number?</span> <span class="p">(</span><span class="nb">not= </span><span class="mi">0</span> <span class="nv">n</span><span class="p">)</span> <span class="nv">=&gt;</span> <span class="nv">pos?</span> <span class="nv">number?</span><span class="p">])</span></div><div class="line" id="LC4"><br /></div><div class="line" id="LC5"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">0</span><span class="p">)</span></div><div class="line" id="LC6"><span class="c1">;=&gt; 0</span></div><div class="line" id="LC7"><br /></div><div class="line" id="LC8"><span class="p">(</span><span class="nf">provide-contracts</span></div><div class="line" id="LC9">&nbsp;&nbsp;<span class="p">[</span><span class="nv">sqr</span> <span class="s">"Apply the contract for squaring"</span> </div><div class="line" id="LC10">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">sqr-contract</span><span class="p">])</span></div><div class="line" id="LC11"><br /></div><div class="line" id="LC12"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">0</span><span class="p">)</span></div><div class="line" id="LC13"><span class="c1">; java.lang.AssertionError: </span></div><div class="line" id="LC14"><span class="c1">;   Assert failed: (not= 0 n)</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
+
+<p><code>provide-contracts</code> gives you a lot of flexibilty in how to separate functions from their contracts and likewise apply them in domain-specific ways.</p>
+
+<p><a href="../docs.html">return to documentation</a></p>
+
+      </div> 
+
+      <a class="button" href="http://clojars.org/trammel">clojars &rarr;</a>
+      <a class="button" href="http://github.com/fogus/trammel">source code &rarr;</a>
+      <a class="button" href="http://github.com/fogus/trammel/issues">tickets &rarr;</a>
+      <a class="button" href="http://wiki.github.com/fogus/trammel">wiki &rarr;</a>
+
+    <div class="footer">
+      &copy; 2010 Michael Fogus <br/>
+      theme based on a design by <a href="http://rinich.tumblr.com">Rory Marinich</a>
+    </div> 
+  </div> 
+</div>
+
+<script type="text/javascript"> 
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script> 
+<script type="text/javascript"> 
+try {
+var pageTracker = _gat._getTracker("UA-921112-2");
+pageTracker._trackPageview();
+} catch(err) {}
+</script> 
+</body>
+</html>

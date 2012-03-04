@@ -1,0 +1,60 @@
+--- pipeline:erb,tags,blocks,head
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="{lang:}">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Trammel Home</title>
+    <meta name="description" content="Trammel - a contracts-programming library for Clojure"/>
+    <meta name="keywords" content="contracts programming, clojure, eiffel"/>
+    <meta name="author" content="Fogus"/>
+    <meta name="generator" content="webgen - http://webgen.rubyforge.com/"/>
+    <meta name="robots" content="index,follow,archive"/>
+
+    <link rel="icon" href="http://blog.fogus.me/images/labyrinth.ico" type="image/x-icon"/>
+    <link href="{relocatable: default.css}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <div id="rinich"> 
+    <div class="log"> 
+      <h1><a href="http://fogus.me/fun/trammel">Trammel</a></h1> 
+      <div class="description">a contracts-programming library for <a href="http://clojure.org">Clojure</a></div>
+     
+      <div class="item"> 
+        <h4>Contracts Programming</h4>            
+        <div class="citation"><p>the relationship between a class and
+        its clients as a formal agreement, expressing each party's
+        rights and obligations</p></div>
+        <div class="citation"><a href="http://en.wikipedia.org/wiki/Bertrand_Meyer">Bertrand Meyer</a></div> 
+      
+        <a class="more" href="http://fogus.me/fun/trammel/cp.html">read more</a>
+      </div> 
+   
+      <div class="item"> 
+        <webgen:block name="content"/>
+      </div> 
+
+      <a class="button" href="http://clojars.org/trammel">clojars &rarr;</a>
+      <a class="button" href="http://github.com/fogus/trammel">source code &rarr;</a>
+      <a class="button" href="http://github.com/fogus/trammel/issues">tickets &rarr;</a>
+      <a class="button" href="http://wiki.github.com/fogus/trammel">wiki &rarr;</a>
+
+    <div class="footer">
+      &copy; 2010 Michael Fogus <br/>
+      theme based on a design by <a href="http://rinich.tumblr.com">Rory Marinich</a>
+    </div> 
+  </div> 
+</div>
+
+<script type="text/javascript"> 
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script> 
+<script type="text/javascript"> 
+try {
+var pageTracker = _gat._getTracker("UA-921112-2");
+pageTracker._trackPageview();
+} catch(err) {}
+</script> 
+</body>
+</html>

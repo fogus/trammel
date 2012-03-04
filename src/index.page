@@ -1,0 +1,17 @@
+---
+title: Trammel - a quick example
+---
+
+### example
+
+<div id="gist-450297" class="gist">
+     <div class="gist-file">
+        <div class="gist-data gist-syntax">
+           <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">use</span> <span class="o">'</span><span class="p">[</span><span class="nv">fogus</span><span class="o">.</span><span class="nv">me</span><span class="o">.</span><span class="nv">trammel</span> </div><div class="line" id="LC2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">:only</span> <span class="p">[</span><span class="nv">provide-contracts</span><span class="p">]])</span></div><div class="line" id="LC3"><br/></div><div class="line" id="LC4"><span class="p">(</span><span class="k">defn </span><span class="nv">sqr</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">(</span><span class="nb">* </span><span class="nv">n</span> <span class="nv">n</span><span class="p">))</span></div><div class="line" id="LC5"><br/></div><div class="line" id="LC6"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">10</span><span class="p">)</span></div><div class="line" id="LC7"><span class="c1">;=&gt; 100</span></div><div class="line" id="LC8"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">0</span><span class="p">)</span></div><div class="line" id="LC9"><span class="c1">;=&gt; 0</span></div><div class="line" id="LC10"><br/></div><div class="line" id="LC11"><span class="p">(</span><span class="nf">provide-contracts</span> </div><div class="line" id="LC12">&nbsp;&nbsp;<span class="p">[</span><span class="nv">sqr</span> <span class="s">"Constraints for squaring"</span> </div><div class="line" id="LC13">&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">[</span><span class="nv">x</span><span class="p">]</span> <span class="p">[</span><span class="nv">number?</span> <span class="p">(</span><span class="nb">not= </span><span class="mi">0</span> <span class="nv">x</span><span class="p">)</span> <span class="nv">=&gt;</span> <span class="nv">number?</span> <span class="nv">pos?</span><span class="p">]])</span></div><div class="line" id="LC14"><br/></div><div class="line" id="LC15"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">10</span><span class="p">)</span></div><div class="line" id="LC16"><span class="c1">;=&gt; 100</span></div><div class="line" id="LC17"><span class="p">(</span><span class="nf">sqr</span> <span class="mi">0</span><span class="p">)</span></div><div class="line" id="LC18"><span class="c1">; java.lang.AssertionError: </span></div><div class="line" id="LC19"><span class="c1">;   Assert failed: (not= 0 x)</span></div></pre>
+           </div>
+       </div>
+     </div>
+</div>
+
+[learn more](/docs.html)...

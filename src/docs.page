@@ -1,0 +1,15 @@
+---
+title: Trammel - Documentation
+---
+
+### documentation
+
+Trammel provides a set of functions used to ease the inclusion of [contracts-programming](cp.html) for the [Clojure](http://clojure.org) programming language.  In addition
+to providing a DSL for defining functions that adhere to a specific contract, Trammel provides a way to define isolated contracts that can later be applied to 
+existing functions at runtime.  Below you will find a more information on both approaches to contracts:
+
+ - [Applying Contracts to Existing Functions](provide-contracts/)
+ - [Defining Constrained Functions](defconstrainedfn/)
+ - [Defining Isolated Unnamed Contracts](contract/)
+ - [Defining Isolated Named Contracts](defcontract/)
+ - [Applying Contracts Manually](with-constraints/)

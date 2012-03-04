@@ -1,0 +1,82 @@
+---
+title: Trammel - Isolated Unnamed Contracts
+---
+
+As you saw in the description of [`defconstrainedfn`](../defconstrainedfn/) Trammel allows you to create functions with a localized and dependent contract.  However, there may be circumstances where the separation of contract and constrained function is preferred.  Take for example, a simple `slope` function:
+
+<div class="gist">
+  <div class="gist-file">
+    <div class="gist-data gist-syntax">
+      <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="k">defn </span><span class="nv">sqr</span> <span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">(</span><span class="nb">* </span><span class="nv">n</span> <span class="nv">n</span><span class="p">))</span></div></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+Defining a separate contract for this function is a simple matter:
+
+<div class="gist">
+  <div class="gist-file">
+    <div class="gist-data gist-syntax">
+      <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="k">def </span><span class="nv">sqr-contract</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="p">(</span><span class="nf">contract</span> <span class="nv">sqr-constraints</span></div><div class="line" id="LC3">&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"Defines the constraints for squaring"</span></div><div class="line" id="LC4">&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">[</span><span class="nv">number?</span> <span class="p">(</span><span class="nb">not= </span><span class="mi">0</span> <span class="nv">n</span><span class="p">)</span> <span class="nv">=&gt;</span> <span class="nv">pos?</span> <span class="nv">number?</span><span class="p">]))</span></div></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+We can then define a constrained version of `sqr` using Trammel's [`with-constraints`](../with-constraints/) macro:
+
+<div class="gist">
+  <div class="gist-file">
+    <div class="gist-data gist-syntax">
+      <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="k">def </span><span class="nv">constrained-sqr</span> </div><div class="line" id="LC2">&nbsp;&nbsp;<span class="p">(</span><span class="nf">with-constraints</span></div><div class="line" id="LC3">&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">sqr</span></div><div class="line" id="LC4">&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">sqr-contract</span><span class="p">))</span></div><div class="line" id="LC5"><br/></div><div class="line" id="LC6"><span class="p">(</span><span class="nf">constrained-sqr</span> <span class="mi">5</span><span class="p">)</span></div><div class="line" id="LC7"><span class="c1">;=&gt; 25</span></div><div class="line" id="LC8"><br/></div><div class="line" id="LC9"><span class="p">(</span><span class="nf">constrained-sqr</span> <span class="mi">-5</span><span class="p">)</span></div><div class="line" id="LC10"><span class="c1">;=&gt; 25</span></div><div class="line" id="LC11"><br/></div><div class="line" id="LC12"><span class="p">(</span><span class="nf">constrained-sqr</span> <span class="mi">0</span><span class="p">)</span></div><div class="line" id="LC13"><span class="c1">; java.lang.AssertionError: Assert failed: <br/>    (not= 0 num)</span></div><div class="line" id="LC14"><br/></div><div class="line" id="LC15"><span class="p">(</span><span class="nf">constrained-sqr</span> <span class="nv">:a</span><span class="p">)</span></div><div class="line" id="LC16"><span class="c1">; java.lang.AssertionError: Assert failed: <br/>    (number? num)</span></div></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+However, this constraint definition for `sqr`, while accurate, is very broad.  In fact, the software team developing software for the 8-bit Atari console would not be able to use `constrained-sqr` as it is far too liberal.  Therefore, they can define their own contract that further constrains `constrained-sqr`:
+
+<div class="gist">
+  <div class="gist-file">
+    <div class="gist-data gist-syntax">
+      <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="k">def </span><span class="nv">sqr-8bit-contract</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="p">(</span><span class="nf">contract</span> <span class="nv">atari-constraints</span></div><div class="line" id="LC3">&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"Defines the constraints for Atari 2600 sqr"</span></div><div class="line" id="LC4">&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">[</span><span class="nv">_</span><span class="p">]</span> <span class="p">[</span><span class="nv">number?</span> <span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">&lt; </span><span class="nv">%</span> <span class="mi">256</span><span class="p">)]))</span></div><div class="line" id="LC5"><br/></div><div class="line" id="LC6"><span class="p">(</span><span class="k">def </span><span class="nv">sqr-8bit</span></div><div class="line" id="LC7">&nbsp;&nbsp;<span class="p">(</span><span class="nf">with-constraints</span></div><div class="line" id="LC8">&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">constrained-sqr</span> </div><div class="line" id="LC9">&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">sqr-8bit-contract</span><span class="p">))</span></div><div class="line" id="LC10"><br/></div><div class="line" id="LC11"><span class="p">(</span><span class="nf">sqr-8bit</span> <span class="mi">5</span><span class="p">)</span></div><div class="line" id="LC12"><span class="c1">;=&gt; 25</span></div><div class="line" id="LC13"><br/></div><div class="line" id="LC14"><span class="p">(</span><span class="nf">sqr-8bit</span> <span class="mi">0</span><span class="p">)</span></div><div class="line" id="LC15"><span class="c1">; java.lang.AssertionError: </span></div><div class="line" id="LC16"><span class="c1">;   Assert failed: (not= 0 num)</span></div></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+And all appears to be in order -- except:
+
+<div class="gist">
+  <div class="gist-file">
+    <div class="gist-data gist-syntax">
+      <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="nf">sqr-8bit</span> <span class="mi">100</span><span class="p">)</span></div><div class="line" id="LC2"><span class="c1">; java.lang.AssertionError:</span></div><div class="line" id="LC4"><span class="c1">;   Assert failed: (&lt; % 256)</span></div></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+That is, calling the function `sqr-8bit` with `100` causes a *post-condition* failure!  The reason for this is because the underlying `sqr` is the same old arbitrary-precision version when what we really want is a function that deals in only 8-bit values.  There are two possible ways to do this:
+
+1. Create a version of `sqr-8bit` that does in fact deal in 8-bit values
+2. Tighten the constraint on `constrained-sqr` further by applying another contract
+
+<div class="gist">
+  <div class="gist-file">
+    <div class="gist-data gist-syntax">
+      <div class="gist-highlight">
+<pre><div class="line" id="LC1"><span class="p">(</span><span class="k">def </span><span class="nv">sqr-8bit-contract</span></div><div class="line" id="LC2">&nbsp;&nbsp;<span class="p">(</span><span class="nf">contract</span> <span class="nv">atari-constraints</span></div><div class="line" id="LC3">&nbsp;&nbsp;&nbsp;&nbsp;<span class="s">"Defines the constraints for Atari 2600 sqr"</span></div><div class="line" id="LC4">&nbsp;&nbsp;&nbsp;&nbsp;<span class="p">[</span><span class="nv">n</span><span class="p">]</span> <span class="p">[(</span><span class="nb">&lt; </span><span class="nv">n</span> <span class="mi">16</span><span class="p">)</span> <span class="nv">integer?</span> <span class="nv">pos?</span> <span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">&lt; </span><span class="nv">%</span> <span class="mi">256</span><span class="p">)]))</span></div><div class="line" id="LC5"><br/></div><div class="line" id="LC6"><span class="p">(</span><span class="k">def </span><span class="nv">sqr-8bit</span></div><div class="line" id="LC7">&nbsp;&nbsp;<span class="p">(</span><span class="nf">with-constraints</span></div><div class="line" id="LC8">&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">constrained-sqr</span> </div><div class="line" id="LC9">&nbsp;&nbsp;&nbsp;&nbsp;<span class="nv">sqr-8bit-contract</span><span class="p">))</span></div><div class="line" id="LC10"><br/></div><div class="line" id="LC12"><span class="p">(</span><span class="nf">sqr-8bit</span> <span class="mi">15</span><span class="p">)</span></div><div class="line" id="LC13"><span class="c1">;=&gt; 225</span></div><div class="line" id="LC14"><br/></div><div class="line" id="LC15"><span class="p">(</span><span class="nf">sqr-8bit</span> <span class="mi">-5</span><span class="p">)</span></div><div class="line" id="LC16"><span class="c1">; java.lang.AssertionError: </span></div><div class="line" id="LC17"><span class="c1">;   Assert failed: (pos? n)</span></div><div class="line" id="LC18"><br/></div><div class="line" id="LC19"><span class="p">(</span><span class="nf">sqr-8bit</span> <span class="mf">15.9687194</span><span class="p">)</span></div><div class="line" id="LC20"><span class="c1">; java.lang.AssertionError: </span></div><div class="line" id="LC21"><span class="c1">;   Assert failed: (integer? n)</span></div><div class="line" id="LC22"><br/></div><div class="line" id="LC23"><span class="p">(</span><span class="nf">sqr-8bit</span> <span class="mi">16</span><span class="p">)</span></div><div class="line" id="LC24"><span class="c1">; java.lang.AssertionError: </span></div><div class="line" id="LC25"><span class="c1">;   Assert failed: (&lt; n 16)</span></div></pre>
+     </div>
+    </div>
+  </div>
+</div>
+
+Using `contract` and `with-constraints` you were able to tighten the constraints on both the pre- and post-conditions of the `sqr` function.  However, what if you wanted to relax the requirements?  Stay tuned.
+
+[return to documentation](../docs.html)
