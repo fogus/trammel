@@ -249,7 +249,14 @@
        ~@body)))
 
 (defmacro defconstrainedrecord
-  [name slots invariants & etc]
+  [name slots inv-description invariants & etc]
+  (assert (and inv-description (string? inv-description))
+          (str "Expecting a invariant description for record type " name))
+  (assert (and invariants (or (map? invariants) (vector? invariants)))
+          (str "Expecting record invariants of the form "
+               "[pre-conditions => post-conditions] or "
+               "{:pre [pre-conditions]}"
+               "for record type " name))
   (let [fields       (->> slots (partition 2) (map first) vec)
         defaults     (->> slots (partition 2) (map second))
         ctor-name    (symbol (str name \.))
@@ -260,7 +267,7 @@
            (= t# (type r#))))
 
        (let [chk# (contract ~(symbol (str "chk-" name))
-                            ~(str "Invariant contract for " name) 
+                            ~inv-description
                             [{:keys ~fields :as m#}] ~invariants)]
          (defconstrainedfn ~factory-name
            ([] [] (with-meta 
@@ -347,5 +354,14 @@
 
   (sqr 0)
   (sqr -1)
+
+  (defconstrainedrecord Foo [a 1 b 2]
+    "Foo record fields are expected to hold only numbers."
+    [(every? number? [a b])]
+    Object
+    (toString [this] (str "record Foo has " a " and " b)))
+
+  (assoc (->Foo) :a "foo")
+
 )
 

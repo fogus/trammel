@@ -17,6 +17,7 @@
 
 
 (defconstrainedrecord Foo [a 1 b 2]
+  "Foo record fields are expected to hold only numbers."
   [(every? number? [a b])]
   Object
   (toString [this] (str "record Foo has " a " and " b)))
@@ -45,6 +46,7 @@
 ;; testing default clojure pre/post maps
 
 (defconstrainedrecord Bar [a 1 b 2]
+  "Foo record fields are expected to hold only numbers."
   {:pre [(every? number? [a b])]}
   Object
   (toString [this] (str "record Bar has " a " and " b)))
