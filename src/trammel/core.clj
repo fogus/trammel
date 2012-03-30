@@ -13,9 +13,9 @@
 
 (ns trammel.core
   "The core contracts programming functions and macros for Trammel."
-  (:use [trammel.funcify :only (funcify)])
-  (:use trammel.factors)
-  (:use trammel.utils)
+  (:use [trammel.funcify :only (funcify)]
+        [trammel.factors]
+        [trammel.utils])
   (:require [fogus.thneed.utils :as fogus]))
 
 ;; HOF support
@@ -291,7 +291,50 @@
               (~ctor-name ~@fields))))
        ~name)))
 
+(defmacro defconstrainedvar
+  [name init inv-description invariants]
+  `(do
+     (def ~name ~init)
+     (set-validator! (var ~name) (partial (contract ~(symbol (str "chk-" name))
+                                            ~inv-description
+                                            [~name]
+                                            ~invariants)
+                                          (fn [x#] true)))))
+
+(defmacro constrained-atom
+  [init inv-description invariants]
+  `(do
+     (let [r# (atom ~init)]
+       (set-validator! r# (partial (contract ~(symbol (str "chk-atom" ))
+                                     ~inv-description
+                                     [the-atom#]
+                                     ~invariants)
+                                   (fn [x#] true)))
+       r#)))
+
+
 (comment
+  (def a (constrained-atom 0
+           "only numbers allowed"
+           [number?]))
+
+  @a
+
+  (swap! a str)
+  (compare-and-set! a 0 "a")
+
+  (defconstrainedvar ^:dynamic foo 0
+    "only numbers allowed in Var foo"
+    [number?])
+ 
+  (macroexpand '(defconstrainedvar ^:dynamic foo 0
+    "only numbers allowed"
+    [number?]))
+
+  (var-set (var foo) 42)
+
+  (binding [foo :a] [foo])
+  
   (use 'trammel.factors)
   
   (defconstrainedfn leap-year?
