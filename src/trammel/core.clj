@@ -312,8 +312,48 @@
                                    (fn [x#] true)))
        r#)))
 
+(defmacro constrained-ref
+  [init inv-description invariants]
+  `(do
+     (let [r# (ref ~init)]
+       (set-validator! r# (partial (contract ~(symbol (str "chk-ref" ))
+                                     ~inv-description
+                                     [the-ref#]
+                                     ~invariants)
+                                   (fn [x#] true)))
+       r#)))
+
+
+(defmacro constrained-agent
+  [init inv-description invariants]
+  `(do
+     (let [r# (agent ~init)]
+       (set-validator! r# (partial (contract ~(symbol (str "chk-agent" ))
+                                     ~inv-description
+                                     [the-agent#]
+                                     ~invariants)
+                                   (fn [x#] true)))
+       r#)))
 
 (comment
+  (def ag (constrained-agent 0
+           "only numbers allowed"
+           [number?]))
+
+  (send ag str)
+
+  @ag
+
+  (agent-error ag)
+  
+  (def r (constrained-ref 0
+           "only numbers allowed"
+           [number?]))
+
+  (dosync (alter r inc))
+
+  (dosync (alter r str))
+  
   (def a (constrained-atom 0
            "only numbers allowed"
            [number?]))
