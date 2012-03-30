@@ -68,6 +68,7 @@ Example
     (use '[trammel.core :only (defconstrainedtype)])
     
     (defconstrainedtype Foo [a b]
+	  "Foo type fields are expected to hold only numbers."
       [(every? number? [a b])])
     
     (->Foo 1 2)
@@ -86,7 +87,7 @@ Getting
 Modify your [Leiningen](http://github.com/technomancy/leiningen) dependencies to include Trammel:
 
 ```clojure
-    :dependencies [[trammel "0.5.0"] ...]    
+    :dependencies [[trammel "0.7.0-SNAPSHOT"] ...]
 ```
 
 ### Maven
@@ -97,7 +98,7 @@ Add the following to your `pom.xml` file:
     <dependency>
       <groupId>trammel</groupId>
       <artifactId>trammel</artifactId>
-      <version>0.5.0</version>
+      <version>0.7.0-SNAPSHOT</version>
     </dependency>
 ```
 
@@ -108,7 +109,7 @@ Trammel is in its infancy but I think that I have a nice springboard for experim
 
   - Better error messages
   - Distinct pre and post exceptions
-  - Study the heck out of everything Bertrand Meyer ever wrote (in progress)
+  - Study the heck out of everything Bertrand Meyer and Walter Bright ever wrote (in progress)
   - `defconstraint` -- with ability to relax requires and tighten ensures
   - Study the heck out of Racket Scheme (in progress)
   - Modify macros to also allow regular Clojure constraint maps
@@ -117,8 +118,9 @@ Trammel is in its infancy but I think that I have a nice springboard for experim
   - Allow other stand-alones: true/false, numbers, characters, regexes
   - Make `provide-contracts` more amenable to REPL use
   - Generate a Foo? function  (in progress) 
+  - Marrying test.generative with Trammel
 
-If you have any ideas or interesting references then I would be happy to discuss.
+If you have any ideas or interesting references then I would be happy to discuss at me -the-at-sign- fogus -the-single-period- me.
 
 References
 ----------
