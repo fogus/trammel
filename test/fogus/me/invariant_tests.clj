@@ -13,10 +13,8 @@
 
 (ns fogus.me.invariant-tests
   (:import (clojure.lang ArityException))
-  (:require [clojure.reflect :as reflect])
   (:use [trammel.core :only [defconstrainedrecord defconstrainedtype]])
   (:use [clojure.test :only [deftest is]]))
-
 
 (defconstrainedrecord AllNumbersRecord [a b]
   [(every? number? [a b])]

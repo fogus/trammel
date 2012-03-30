@@ -13,7 +13,6 @@
 
 (ns trammel.core
   "The core contracts programming functions and macros for Trammel."
-  (:require [clojure.reflect :as reflect])
   (:use [trammel.funcify :only (funcify)])
   (:use trammel.factors))
 
@@ -248,7 +247,7 @@
         arrow-factory-name (symbol (str "->" name))
         map-arrow-factory-name (symbol (str "map->" name))]
     `(let [t# (defrecord ~name ~fields ~@etc)
-           map-factory-method# (.getDeclaredMethod t# "create" (into-array Class [clojure.lang.IPersistentMap]))
+           map-factory-method# (.getDeclaredMethod ^Class t# "create" (into-array Class [clojure.lang.IPersistentMap]))
            chk# (contract ~(symbol (str "chk-" name))
                           ~(str "Invariant contract for " name) 
                           [{:keys ~fields :as m#}] ~invariants)]
@@ -257,17 +256,17 @@
          (= t# (type r#)))
 
        (defconstrainedfn ~arrow-factory-name
-                         ([& {:keys ~fields :as kwargs#}]
-                          ~invariants
-                          (with-meta
-                            (~ctor-name ~@fields)
-                            {:contract chk#})))
+         ([& {:keys ~fields :as kwargs#}]
+          ~invariants
+          (with-meta
+            (~ctor-name ~@fields)
+            {:contract chk#})))
        (defconstrainedfn ~map-arrow-factory-name
-                         ([{:keys ~fields :as kwargs#}]
-                          ~invariants
-                          (with-meta
-                            (map-factory-method# kwargs#)
-                            {:contract chk#})))
+         ([{:keys ~fields :as kwargs#}]
+          ~invariants
+          (with-meta
+            (.invoke ^java.lang.reflect.Method map-factory-method# kwargs#)
+            {:contract chk#})))
        ~name)))
 
 (defn- apply-contract
