@@ -240,34 +240,62 @@
        ~(str (:doc mdata))
        ~@body)))
 
+; clojure/core_deftype.clj
+(defn- build-positional-factory
+  "Used to build a positional factory for a given type/record.  Because of the
+  limitation of 20 arguments to Clojure functions, this factory needs to be
+  constructed to deal with more arguments.  It does this by building a straight
+  forward type/record ctor call in the <=20 case, and a call to the same
+  ctor pulling the extra args out of the & overage parameter.  Finally, the
+  arity is constrained to the number of expected fields and an ArityException
+  will be thrown at runtime if the actual arg count does not match."
+  [nom classname fields invariants chk]
+  (let [fn-name (symbol (str '-> nom))
+        [field-args over] (split-at 20 fields)
+        field-count (count fields)
+        arg-count (count field-args)
+        over-count (count over)]
+    `(defconstrainedfn ~fn-name
+       [~@field-args ~@(if (seq over) '[& overage] [])]
+       ~invariants
+       (with-meta
+         ~(if (seq over)
+            `(if (= (count ~'overage) ~over-count)
+               (new ~classname
+                    ~@field-args
+                    ~@(for [i (range 0 (count over))]
+                        (list `nth 'overage i)))
+               (throw (clojure.lang.ArityException. (+ ~arg-count (count ~'overage)) (name '~fn-name))))
+            `(new ~classname ~@field-args))
+         {:contract ~chk}))))
+
+
 (defmacro defconstrainedrecord
   [name slots invariants & etc]
   (let [fields       (vec slots)
-        ctor-name    (symbol (str name \.))
-        arrow-factory-name (symbol (str "->" name))
-        map-arrow-factory-name (symbol (str "map->" name))]
-    `(let [t# (defrecord ~name ~fields ~@etc)
-           map-factory-method# (.getDeclaredMethod ^Class t# "create" (into-array Class [clojure.lang.IPersistentMap]))
-           chk# (contract ~(symbol (str "chk-" name))
-                          ~(str "Invariant contract for " name) 
-                          [{:keys ~fields :as m#}] ~invariants)]
+        ns-part (namespace-munge *ns*)
+        classname (symbol (str ns-part "." name))
+        ctor-name (symbol (str name \.))
+        positional-factory-name (symbol (str "->" name))
+        map-arrow-factory-name (symbol (str "map->" name))
+        chk `(contract ~(symbol (str "chk-" name))
+                       ~(str "Invariant contract for " name) 
+                       [{:keys ~fields :as m#}] ~invariants)]
+    `(do
+       (let [t# (defrecord ~name ~fields ~@etc)]
+         (defn ~(symbol (str name \?)) [r#]
+           (= t# (type r#))))
+      
+       ~(build-positional-factory name classname fields invariants chk)
 
-       (defn ~(symbol (str name \?)) [r#]
-         (= t# (type r#)))
-
-       (defconstrainedfn ~arrow-factory-name
-         ([& {:keys ~fields :as kwargs#}]
-          ~invariants
-          (with-meta
-            (~ctor-name ~@fields)
-            {:contract chk#})))
        (defconstrainedfn ~map-arrow-factory-name
          ([{:keys ~fields :as kwargs#}]
           ~invariants
           (with-meta
-            (.invoke ^java.lang.reflect.Method map-factory-method# kwargs#)
-            {:contract chk#})))
-       ~name)))
+            (. ~classname ~'create kwargs#)
+            {:contract ~chk})))
+
+       ~classname)))
 
 (defn- apply-contract
   [f]

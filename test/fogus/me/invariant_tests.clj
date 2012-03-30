@@ -25,16 +25,10 @@
   [(every? number? [a b])])
 
 (deftest test-constrained-record-with-vector-spec
-  (is (= (:a (->AllNumbersRecord :a 42 :b 108)) 42))
-  (is (= (:b (->AllNumbersRecord :a 42 :b 108)) 108))
-  (is (= (:a (->AllNumbersRecord :a 42 :b 108 :c 36)) 42))
-  (is (= (:b (->AllNumbersRecord :a 42 :b 108 :c 36)) 108))
-  (is (= (:c (->AllNumbersRecord :a 42 :b 108 :c 36)) 36))
-  (is (thrown? Error (->AllNumbersRecord)))
-  (is (thrown? Error (->AllNumbersRecord :a 12)))
-  (is (thrown? Error (->AllNumbersRecord :b 12)))
-  (is (thrown? Error (->AllNumbersRecord :a :b)))
-  (is (thrown? Error (->AllNumbersRecord :a 42 :b nil))))
+  (is (= (:a (->AllNumbersRecord 42 108)) 42))
+  (is (= (:b (->AllNumbersRecord 42 108)) 108))
+  (is (thrown? ArityException (->AllNumbersRecord)))
+  (is (thrown? ArityException (->AllNumbersRecord 12))))
 
 (deftest test-constrained-type-with-vector-spec
   (is (= (.a (->AllNumbersType 1 2)) 1))
@@ -42,20 +36,6 @@
   (is (thrown? ArityException (->AllNumbersType)))
   (is (thrown? ArityException (->AllNumbersType 1)))
   (is (thrown? Error (->AllNumbersType :a :b))))
-
-;; test constructors without contracts
-
-(defconstrainedrecord NoConstraintRecord [a b]
-  [])
-
-(deftest test-record-constructor-with-no-constraints
-  (is (= (:a (->NoConstraintRecord)) nil))
-  (is (= (:b (->NoConstraintRecord) nil)))
-  (is (= (:a (->NoConstraintRecord :a 1)) 1))
-  (is (= (:b (->NoConstraintRecord :a 1)) nil))
-  (is (= (:a (->NoConstraintRecord :b 1)) nil))
-  (is (= (:b (->NoConstraintRecord :b 1)) 1))
-  (is (= (:a (->NoConstraintRecord :a 1 :b 2)) 1)))
 
 ;; testing default clojure pre/post maps
 
@@ -65,13 +45,18 @@
   (toString [this] (str "record Buzz has " a " and " b)))
 
 (deftest test-constrained-record-with-map-spec
-  (is (= (:a (->Buzz :a 42 :b 108)) 42))
-  (is (= (:b (->Buzz :a 42 :b 108)) 108))
-  (is (= (:a (->Buzz :a 42 :b 108 :c 36)) 42))
-  (is (= (:b (->Buzz :a 42 :b 108 :c 36)) 108))
-  (is (= (:c (->Buzz :a 42 :b 108 :c 36)) 36))
-  (is (thrown? Error (->Buzz)))
-  (is (thrown? Error (->Buzz :a 12)))
-  (is (thrown? Error (->Buzz :b 12)))
-  (is (thrown? Error (->Buzz :a :b)))
-  (is (thrown? Error (->Buzz :a 42 :b nil))))
+  (is (= (:a (->Buzz 42 108)) 42))
+  (is (= (:b (->Buzz 42 108)) 108))
+  (is (thrown? ArityException (->Buzz)))
+  (is (thrown? ArityException (->Buzz 12))))
+
+; map->* factory
+
+(defconstrainedrecord MapFactory [a b]
+  [(every? number? [a b])])
+
+(deftest test-map-factory-for-defconstrainedrecord
+  (is (= (:a (map->MapFactory {:a 1 :b 2})) 1))
+  (is (= (:b (map->MapFactory {:a 1 :b 2})) 2))
+  (is (= (:c (map->MapFactory {:a 1 :b 2 :c "a"})) "a"))
+  (is (thrown? Error (map->MapFactory {:a nil})) "a"))
