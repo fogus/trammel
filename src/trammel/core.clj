@@ -15,7 +15,8 @@
   "The core contracts programming functions and macros for Trammel."
   (:use [trammel.funcify :only (funcify)])
   (:use trammel.factors)
-  (:use trammel.utils))
+  (:use trammel.utils)
+  (:require [fogus.thneed.utils :as fogus]))
 
 ;; HOF support
 
@@ -64,8 +65,8 @@
   (let [hocs (tag-hocs args cnstr)]
     [args 
      (->> (build-pre-post-map cnstr)
-          (manip-map (partial funcify '[%]) [:post])
-          (manip-map (partial funcify args) [:pre]))]))
+          (fogus/manip-map (partial funcify '[%]) [:post])
+          (fogus/manip-map (partial funcify args) [:pre]))]))
 
 (comment
   (let [hoc (_ [n] even? number? => number?)]
