@@ -68,6 +68,9 @@
        :post (if (= L '(=>)) M R)})
     cnstr))
 
+(defn tag-hocs [args cnstr]
+  nil)
+
 (defn- build-constraints-map 
   "Takes the corresponding arglist and a vector of the contract expectations, the latter of which looks 
    like any of the following:
@@ -83,11 +86,20 @@
         :post [(baz %)]}
   "
   [args cnstr]
-  [args 
-   (->> (build-pre-post-map cnstr)
-        (manip-map (partial funcify '[%]) [:post])
-        (manip-map (partial funcify args) [:pre]))])
+  (let [hocs (tag-hocs args cnstr)]
+    [args 
+     (->> (build-pre-post-map cnstr)
+          (manip-map (partial funcify '[%]) [:post])
+          (manip-map (partial funcify args) [:pre]))]))
 
+(comment
+  (let [hoc (_ [n] even? number? => number?)]
+    (build-contract 'hof (build-constraints-map (:args hoc) (:argspec hoc))))
+
+  (macroexpand '(contract my-map "mymap" [fun sq] [(_ [n] number? => number?) (seq sq) => seq]))
+
+  (contract my-map "mymap" [fun sq] [(_ [n] number? => number?) (seq sq) => seq])
+)
 
 (defn- build-contract 
   "Expects a seq representing an arity-based expectation of the form:
@@ -108,7 +120,7 @@
    with more information.  At the moment this information only takes the form of a
    richer assertion message.
   "
-  [n cnstr]
+  [message cnstr]
   (let [[args pre-post-map] cnstr]
     `(~(into '[f] args)
       (let [ret# (try
@@ -120,18 +132,14 @@
                                                  :else [item]))
                                          args))))
                    (catch AssertionError pre#
-                     (throw (AssertionError. (str "Pre-condition failure in " ~n "! " (.getMessage pre#))))))]
+                     (throw (AssertionError. (str "Pre-condition failure: " ~message \newline (.getMessage pre#))))))]
         (try
           ((fn []
              ~(select-keys pre-post-map [:post])
              ret#))
           (catch AssertionError post#
-            (throw (AssertionError. (str "Post-condition failure in " ~n "! " (.getMessage post#))))))))))
+            (throw (AssertionError. (str "Post-condition failure: " ~message \newline (.getMessage post#))))))))))
 
-(comment
-  (let [hoc (_ [n] even? number? => number?)]
-    (build-contract 'hof (build-constraints-map (:args hoc) (:argspec hoc))))
-)
 
 (defmacro contract
   "The base contract form returning a higher-order function that can then be partially
@@ -322,7 +330,22 @@
   (defconstrainedfn sqr
     [n],[number? => pos? number?]
     (* n n))
+  
+  (sqr 0)
+
+  (defn sqr [n] (* n n))
 
   (sqr 0)
+
+  (require '[trammel.provide :as provide])
+  
+  (provide/contracts
+   [sqr "given a number not equal to zero, sqr ensures that it returns a positive number"
+    [x] [number? (not= 0 x) => number? pos?]])
+
+  (sqr 10)
+
+  (sqr 0)
+  (sqr -1)
 )
 

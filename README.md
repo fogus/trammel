@@ -22,13 +22,16 @@ Example
     ;=> 0
     
     (provide/contracts 
-      [sqr "Constraints for squaring" 
+      [sqr "given a number not equal to zero, sqr ensures that it returns a positive number"
         [x] [number? (not= 0 x) => number? pos?]])
     
     (sqr 10)
     ;=> 100
     (sqr 0)
-    ; java.lang.AssertionError: Assert failed: (not= 0 x)
+	; Pre-condition failure: given a number not equal to zero, sqr
+    ;   ensures that it returns a positive number
+    ; Assert failed: (not= 0 x)
+
 ```
 
 ### Record Invariants
