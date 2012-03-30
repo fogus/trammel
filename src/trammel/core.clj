@@ -14,7 +14,8 @@
 (ns trammel.core
   "The core contracts programming functions and macros for Trammel."
   (:use [trammel.funcify :only (funcify)])
-  (:use trammel.factors))
+  (:use trammel.factors)
+  (:use trammel.utils))
 
 ;; HOF support
 
@@ -28,32 +29,6 @@
 )
 
 ;; # base functions and macros
-
-(defn- keys-apply
-  "Takes a function, a set of keys, and a map and applies the function to the map on the given keys.  
-   A new map of the results of the function applied to the keyed entries is returned.
-  "
-  [f ks m]
-  {:pre  [(or (fn? f) (keyword? f) (symbol? f))
-          (except (coll? ks) (map? ks))
-          (map? m)]
-   :post [(map? %)]}
-  (let [only (select-keys m ks)] 
-    (zipmap (keys only)
-            (map f (vals only)))))
-
-(defn- manip-map
-  "Takes a function, a set of keys, and a map and applies the function to the map on the given keys.  
-   A modified version of the original map is returned with the results of the function applied to each 
-   keyed entry.
-  "
-  [f ks m]
-  {:pre  [(or (fn? f) (keyword? f) (symbol? f))
-          (except (coll? ks) (map? ks))
-          (map? m)]
-   :post [(map? %)
-          (= (keys %) (keys m))]}  
-  (conj m (keys-apply f ks m)))
 
 (defn- build-pre-post-map
   "Takes a vector of the form `[pre ... => post ...]` and infers the expectations described
@@ -247,16 +222,6 @@
     `(defn ~name
        ~(str (:doc mdata))
        ~@body)))
-
-(defn ^:private check-args!
-  [name slots inv-description invariants]
-    (assert (and inv-description (string? inv-description))
-          (str "Expecting an invariant description for " name))
-    (assert (and invariants (or (map? invariants) (vector? invariants)))
-          (str "Expecting invariants of the form "
-               "[pre-conditions => post-conditions] or "
-               "{:pre [pre-conditions]}"
-               "for record type " name)))
 
 (defmacro defconstrainedrecord
   [name slots inv-description invariants & etc]
