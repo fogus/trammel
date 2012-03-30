@@ -13,6 +13,7 @@
 
 (ns trammel.core
   "The core contracts programming functions and macros for Trammel."
+  (:require [clojure.reflect :as reflect])
   (:use [trammel.funcify :only (funcify)])
   (:use trammel.factors))
 
@@ -242,28 +243,31 @@
 
 (defmacro defconstrainedrecord
   [name slots invariants & etc]
-  (let [fields       (->> slots (partition 2) (map first) vec)
-        defaults     (->> slots (partition 2) (map second))
+  (let [fields       (vec slots)
         ctor-name    (symbol (str name \.))
-        factory-name (symbol (str "->" name))]
-    `(do
-       (let [t# (defrecord ~name ~fields ~@etc)]
-         (defn ~(symbol (str name \?)) [r#]
-           (= t# (type r#))))
+        arrow-factory-name (symbol (str "->" name))
+        map-arrow-factory-name (symbol (str "map->" name))]
+    `(let [t# (defrecord ~name ~fields ~@etc)
+           map-factory-method# (.getDeclaredMethod t# "create" (into-array Class [clojure.lang.IPersistentMap]))
+           chk# (contract ~(symbol (str "chk-" name))
+                          ~(str "Invariant contract for " name) 
+                          [{:keys ~fields :as m#}] ~invariants)]
 
-       (let [chk# (contract ~(symbol (str "chk-" name))
-                            ~(str "Invariant contract for " name) 
-                            [{:keys ~fields :as m#}] ~invariants)]
-         (defconstrainedfn ~factory-name
-           ([] [] (with-meta 
-                    (~ctor-name ~@defaults)
-                    {:contract chk#}))
-           ([& {:keys ~fields :as kwargs# :or ~(apply hash-map slots)}]
-              ~invariants
-              (with-meta
-                (-> (~ctor-name ~@defaults)
-                    (merge kwargs#))
-                {:contract chk#}))))
+       (defn ~(symbol (str name \?)) [r#]
+         (= t# (type r#)))
+
+       (defconstrainedfn ~arrow-factory-name
+                         ([& {:keys ~fields :as kwargs#}]
+                          ~invariants
+                          (with-meta
+                            (~ctor-name ~@fields)
+                            {:contract chk#})))
+       (defconstrainedfn ~map-arrow-factory-name
+                         ([{:keys ~fields :as kwargs#}]
+                          ~invariants
+                          (with-meta
+                            (map-factory-method# kwargs#)
+                            {:contract chk#})))
        ~name)))
 
 (defn- apply-contract

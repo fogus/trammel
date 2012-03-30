@@ -12,52 +12,68 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.invariant-tests
+  (:import (clojure.lang ArityException))
+  (:require [clojure.reflect :as reflect])
   (:use [trammel.core :only [defconstrainedrecord defconstrainedtype]])
   (:use [clojure.test :only [deftest is]]))
 
 
-(defconstrainedrecord Foo [a 1 b 2]
+(defconstrainedrecord AllNumbersRecord [a b]
   [(every? number? [a b])]
   Object
-  (toString [this] (str "record Foo has " a " and " b)))
+  (toString [this] (str "record AllNumbersRecord has " a " and " b)))
 
-(defconstrainedtype Bar [a b]
+(defconstrainedtype AllNumbersType [a b]
   [(every? number? [a b])])
 
 (deftest test-constrained-record-with-vector-spec
-  (is (= (:a (->Foo)) 1))
-  (is (= (:b (->Foo)) 2))
-  (is (= (:a (->Foo :a 42)) 42))
-  (is (= (:b (->Foo :b 108)) 108))
-  (is (= (:a (->Foo :a 42 :b 108)) 42))
-  (is (= (:b (->Foo :a 42 :b 108)) 108))
-  (is (= (:a (->Foo :a 42 :b 108 :c 36)) 42))
-  (is (= (:b (->Foo :a 42 :b 108 :c 36)) 108))
-  (is (= (:c (->Foo :a 42 :b 108 :c 36)) 36))
-  (is (thrown? Error (->Foo :a :b)))
-  (is (thrown? Error (->Foo :a 42 :b nil))))
+  (is (= (:a (->AllNumbersRecord :a 42 :b 108)) 42))
+  (is (= (:b (->AllNumbersRecord :a 42 :b 108)) 108))
+  (is (= (:a (->AllNumbersRecord :a 42 :b 108 :c 36)) 42))
+  (is (= (:b (->AllNumbersRecord :a 42 :b 108 :c 36)) 108))
+  (is (= (:c (->AllNumbersRecord :a 42 :b 108 :c 36)) 36))
+  (is (thrown? Error (->AllNumbersRecord)))
+  (is (thrown? Error (->AllNumbersRecord :a 12)))
+  (is (thrown? Error (->AllNumbersRecord :b 12)))
+  (is (thrown? Error (->AllNumbersRecord :a :b)))
+  (is (thrown? Error (->AllNumbersRecord :a 42 :b nil))))
 
 (deftest test-constrained-type-with-vector-spec
-  (is (= (.a (->Bar 1 2)) 1))
-  (is (= (.b (->Bar 1 2)) 2))
-  (is (thrown? Error (->Bar :a :b))))
+  (is (= (.a (->AllNumbersType 1 2)) 1))
+  (is (= (.b (->AllNumbersType 1 2)) 2))
+  (is (thrown? ArityException (->AllNumbersType)))
+  (is (thrown? ArityException (->AllNumbersType 1)))
+  (is (thrown? Error (->AllNumbersType :a :b))))
+
+;; test constructors without contracts
+
+(defconstrainedrecord NoConstraintRecord [a b]
+  [])
+
+(deftest test-record-constructor-with-no-constraints
+  (is (= (:a (->NoConstraintRecord)) nil))
+  (is (= (:b (->NoConstraintRecord) nil)))
+  (is (= (:a (->NoConstraintRecord :a 1)) 1))
+  (is (= (:b (->NoConstraintRecord :a 1)) nil))
+  (is (= (:a (->NoConstraintRecord :b 1)) nil))
+  (is (= (:b (->NoConstraintRecord :b 1)) 1))
+  (is (= (:a (->NoConstraintRecord :a 1 :b 2)) 1)))
 
 ;; testing default clojure pre/post maps
 
-(defconstrainedrecord Bar [a 1 b 2]
+(defconstrainedrecord Buzz [a b]
   {:pre [(every? number? [a b])]}
   Object
-  (toString [this] (str "record Bar has " a " and " b)))
+  (toString [this] (str "record Buzz has " a " and " b)))
 
 (deftest test-constrained-record-with-map-spec
-  (is (= (:a (->Bar)) 1))
-  (is (= (:b (->Bar)) 2))
-  (is (= (:a (->Bar :a 42)) 42))
-  (is (= (:b (->Bar :b 108)) 108))
-  (is (= (:a (->Bar :a 42 :b 108)) 42))
-  (is (= (:b (->Bar :a 42 :b 108)) 108))
-  (is (= (:a (->Bar :a 42 :b 108 :c 36)) 42))
-  (is (= (:b (->Bar :a 42 :b 108 :c 36)) 108))
-  (is (= (:c (->Bar :a 42 :b 108 :c 36)) 36))
-  (is (thrown? Error (->Bar :a :b)))
-  (is (thrown? Error (->Bar :a 42 :b nil))))
+  (is (= (:a (->Buzz :a 42 :b 108)) 42))
+  (is (= (:b (->Buzz :a 42 :b 108)) 108))
+  (is (= (:a (->Buzz :a 42 :b 108 :c 36)) 42))
+  (is (= (:b (->Buzz :a 42 :b 108 :c 36)) 108))
+  (is (= (:c (->Buzz :a 42 :b 108 :c 36)) 36))
+  (is (thrown? Error (->Buzz)))
+  (is (thrown? Error (->Buzz :a 12)))
+  (is (thrown? Error (->Buzz :b 12)))
+  (is (thrown? Error (->Buzz :a :b)))
+  (is (thrown? Error (->Buzz :a 42 :b nil))))
