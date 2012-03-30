@@ -248,15 +248,19 @@
        ~(str (:doc mdata))
        ~@body)))
 
-(defmacro defconstrainedrecord
-  [name slots inv-description invariants & etc]
-  (assert (and inv-description (string? inv-description))
-          (str "Expecting a invariant description for record type " name))
-  (assert (and invariants (or (map? invariants) (vector? invariants)))
-          (str "Expecting record invariants of the form "
+(defn ^:private check-args!
+  [name slots inv-description invariants]
+    (assert (and inv-description (string? inv-description))
+          (str "Expecting an invariant description for " name))
+    (assert (and invariants (or (map? invariants) (vector? invariants)))
+          (str "Expecting invariants of the form "
                "[pre-conditions => post-conditions] or "
                "{:pre [pre-conditions]}"
-               "for record type " name))
+               "for record type " name)))
+
+(defmacro defconstrainedrecord
+  [name slots inv-description invariants & etc]
+  (check-args! name slots inv-description invariants)
   (let [fields       (->> slots (partition 2) (map first) vec)
         defaults     (->> slots (partition 2) (map second))
         ctor-name    (symbol (str name \.))
@@ -303,7 +307,8 @@
   (alter-var-root (var update-in) apply-contract))
 
 (defmacro defconstrainedtype
-  [name slots invariants & etc]
+  [name slots inv-description invariants & etc]
+  (check-args! name slots inv-description invariants)
   (let [fields       (vec slots)
         ctor-name    (symbol (str name \.))
         factory-name (symbol (str "->" name))]
@@ -313,7 +318,7 @@
            (= t# (type r#))))
        
        (let [chk# (contract ~(symbol (str "chk-" name))
-                            ~(str "Invariant contract for " name) 
+                            ~inv-description
                             [{:keys ~fields :as m#}] ~invariants)]
          (defconstrainedfn ~factory-name
            (~fields ~invariants

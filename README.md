@@ -40,6 +40,7 @@ Example
     (use '[trammel.core :only (defconstrainedrecord)])
     
     (defconstrainedrecord Foo [a 1 b 2]
+	  "Foo record fields are expected to hold only numbers."
       [(every? number? [a b])]
       Object
       (toString [this] (str "record Foo has " a " and " b)))
