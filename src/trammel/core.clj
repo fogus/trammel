@@ -335,6 +335,7 @@
                                    (fn [x#] true)))
        r#)))
 
+
 (comment
   (def ag (constrained-agent 0
            "only numbers allowed"
