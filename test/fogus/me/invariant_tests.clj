@@ -12,55 +12,55 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.invariant-tests
+  (:import (clojure.lang ArityException))
   (:use [trammel.core :only [defconstrainedrecord defconstrainedtype]])
   (:use [clojure.test :only [deftest is]]))
 
-
-(defconstrainedrecord Foo [a 1 b 2]
-  "Foo record fields are expected to hold only numbers."
+(defconstrainedrecord AllNumbersRecord [a b]
+  "AllNumbersRecord record fields are expected to hold only numbers."
   [(every? number? [a b])]
   Object
-  (toString [this] (str "record Foo has " a " and " b)))
+  (toString [this] (str "record AllNumbersRecord has " a " and " b)))
+
+(defconstrainedtype AllNumbersType [a b]
+  "AllNumbersType type fields are expected to hold only numbers."
+  [(every? number? [a b])])
 
 (deftest test-constrained-record-with-vector-spec
-  (is (= (:a (->Foo)) 1))
-  (is (= (:b (->Foo)) 2))
-  (is (= (:a (->Foo :a 42)) 42))
-  (is (= (:b (->Foo :b 108)) 108))
-  (is (= (:a (->Foo :a 42 :b 108)) 42))
-  (is (= (:b (->Foo :a 42 :b 108)) 108))
-  (is (= (:a (->Foo :a 42 :b 108 :c 36)) 42))
-  (is (= (:b (->Foo :a 42 :b 108 :c 36)) 108))
-  (is (= (:c (->Foo :a 42 :b 108 :c 36)) 36))
-  (is (thrown? Error (->Foo :a :b)))
-  (is (thrown? Error (->Foo :a 42 :b nil))))
+  (is (= (:a (->AllNumbersRecord 42 108)) 42))
+  (is (= (:b (->AllNumbersRecord 42 108)) 108))
+  (is (thrown? ArityException (->AllNumbersRecord)))
+  (is (thrown? ArityException (->AllNumbersRecord 12))))
 
 (defconstrainedtype Bar [a b]
   "Bar type fields are expected to hold only numbers."
   [(every? number? [a b])])
 
 (deftest test-constrained-type-with-vector-spec
-  (is (= (.a (->Bar 1 2)) 1))
-  (is (= (.b (->Bar 1 2)) 2))
-  (is (thrown? Error (->Bar :a :b))))
+  (is (= (.a (->AllNumbersType 1 2)) 1))
+  (is (= (.b (->AllNumbersType 1 2)) 2))
+  (is (thrown? ArityException (->AllNumbersType)))
+  (is (thrown? ArityException (->AllNumbersType 1)))
+  (is (thrown? Error (->AllNumbersType :a :b))))
 
 ;; testing default clojure pre/post maps
 
-(defconstrainedrecord Baz [a 1 b 2]
+(defconstrainedrecord Buzz [a b]
   "Baz record fields are expected to hold only numbers."
   {:pre [(every? number? [a b])]}
   Object
-  (toString [this] (str "record Baz has " a " and " b)))
+  (toString [this] (str "record Buzz has " a " and " b)))
 
 (deftest test-constrained-record-with-map-spec
-  (is (= (:a (->Baz)) 1))
-  (is (= (:b (->Baz)) 2))
-  (is (= (:a (->Baz :a 42)) 42))
-  (is (= (:b (->Baz :b 108)) 108))
-  (is (= (:a (->Baz :a 42 :b 108)) 42))
-  (is (= (:b (->Baz :a 42 :b 108)) 108))
-  (is (= (:a (->Baz :a 42 :b 108 :c 36)) 42))
-  (is (= (:b (->Baz :a 42 :b 108 :c 36)) 108))
-  (is (= (:c (->Baz :a 42 :b 108 :c 36)) 36))
-  (is (thrown? Error (->Baz :a :b)))
-  (is (thrown? Error (->Baz :a 42 :b nil))))
+  (is (= (:a (->Buzz 42 108)) 42))
+  (is (= (:b (->Buzz 42 108)) 108))
+  (is (thrown? ArityException (->Buzz)))
+  (is (thrown? ArityException (->Buzz 12))))
+
+; map->* factory
+
+(deftest test-map-factory-for-defconstrainedrecord
+  (is (= (:a (map->Buzz {:a 1 :b 2})) 1))
+  (is (= (:b (map->Buzz {:a 1 :b 2})) 2))
+  (is (= (:c (map->Buzz {:a 1 :b 2 :c "a"})) "a"))
+  (is (thrown? Error (map->Buzz {:a nil})) "a"))
