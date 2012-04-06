@@ -41,26 +41,23 @@ Example
 
     (use '[trammel.core :only (defconstrainedrecord)])
     
-    (defconstrainedrecord Foo [a 1 b 2]
+    (defconstrainedrecord Foo [a b]
 	  "Foo record fields are expected to hold only numbers."
       [(every? number? [a b])]
       Object
       (toString [this] (str "record Foo has " a " and " b)))
     
     ;; default ctor with default values
-    (->Foo)
+    (->Foo 1 2)
     ;=> #:user.Foo{:a 1, :b 2}
     
-    ;; kwarg ctor
-    (->Foo :a 42)
-    ;=> #:user.Foo{:a 42, :b 2}
-    
     ;; use like any other map/record
-    (assoc (->Foo) :a 88 :c "foo")
+    (assoc (->Foo 1 2) :a 88 :c "foo")
     ;=> #:user.Foo{:a 88, :b 2, :c "foo"}
     
     ;; invariants on records checked at runtime    
-    (assoc (->Foo) :a "foo")
+    (assoc (->Foo 1 2) :a "foo")
+	; Pre-condition failure: Foo record fields are expected to hold only numbers.
     ; Assert failed: (every? number? [a b])
 
 ```
@@ -99,9 +96,18 @@ Example
 	;=> 1
 	
     (swap! a str)
+	; Pre-condition failure: only numbers allowed 
+	
     (compare-and-set! a 0 "a")
+	; Pre-condition failure: only numbers allowed 
 
 ```
+
+The same will work on all reference types, including:
+
+* **Refs**   - Invariants checked in a transaction
+* **Agents** - Invariants checked on `send` and `send-off`, assertion errors handled as normal agent errors
+* **Vars**   - Invariants checked on `binding`
 
 Getting
 -------
@@ -142,7 +148,6 @@ Trammel is in its infancy but I think that I have a nice springboard for experim
   - `defconstraint` -- with ability to relax requires and tighten ensures
   - Study the heck out of Racket Scheme (in progress)
   - Modify macros to also allow regular Clojure constraint maps
-  - Reference contracts
   - Make the `anything` constraint cheap (elimination)
   - Allow other stand-alones: true/false, numbers, characters, regexes
   - Make `provide-contracts` more amenable to REPL use
@@ -231,4 +236,40 @@ Type the following into a REPL session to see how Trammel might be used.
       (Math/sqrt x))
     
     (* (sqrt 30) (sqrt 30))
+	
+    (def ag (constrained-agent 0
+             "only numbers allowed"
+             [number?]))
+    
+    (send ag str)
+    
+    @ag
+    
+    (agent-error ag)
+    
+    (def r (constrained-ref 0
+             "only numbers allowed"
+             [number?]))
+    
+    (dosync (alter r inc))
+    
+    (dosync (alter r str))
+    
+    (def a (constrained-atom 0
+             "only numbers allowed"
+             [number?]))
+    
+    @a
+    
+    (swap! a inc)
+    
+    (swap! a str)
+    (compare-and-set! a 0 "a")
+    
+    (defconstrainedvar ^:dynamic foo 0
+      "only numbers allowed in Var foo"
+      [number?])
+    
+    (binding [foo :a] [foo])
+
 ```
