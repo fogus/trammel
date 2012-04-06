@@ -12,7 +12,6 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.invariant-tests
-  (:import (clojure.lang ArityException))
   (:use [trammel.core :only [defconstrainedrecord defconstrainedtype]])
   (:use [clojure.test :only [deftest is]]))
 
@@ -29,8 +28,8 @@
 (deftest test-constrained-record-with-vector-spec
   (is (= (:a (->AllNumbersRecord 42 108)) 42))
   (is (= (:b (->AllNumbersRecord 42 108)) 108))
-  (is (thrown? ArityException (->AllNumbersRecord)))
-  (is (thrown? ArityException (->AllNumbersRecord 12))))
+  (is (thrown? Exception (->AllNumbersRecord)))
+  (is (thrown? Exception (->AllNumbersRecord 12))))
 
 (defconstrainedtype Bar [a b]
   "Bar type fields are expected to hold only numbers."
@@ -39,8 +38,8 @@
 (deftest test-constrained-type-with-vector-spec
   (is (= (.a (->AllNumbersType 1 2)) 1))
   (is (= (.b (->AllNumbersType 1 2)) 2))
-  (is (thrown? ArityException (->AllNumbersType)))
-  (is (thrown? ArityException (->AllNumbersType 1)))
+  (is (thrown? Exception (->AllNumbersType)))
+  (is (thrown? Exception (->AllNumbersType 1)))
   (is (thrown? Error (->AllNumbersType :a :b))))
 
 ;; testing default clojure pre/post maps
@@ -54,8 +53,8 @@
 (deftest test-constrained-record-with-map-spec
   (is (= (:a (->Buzz 42 108)) 42))
   (is (= (:b (->Buzz 42 108)) 108))
-  (is (thrown? ArityException (->Buzz)))
-  (is (thrown? ArityException (->Buzz 12))))
+  (is (thrown? Exception (->Buzz)))
+  (is (thrown? Exception (->Buzz 12))))
 
 ; map->* factory
 

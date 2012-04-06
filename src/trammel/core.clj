@@ -245,12 +245,12 @@
        (with-meta
          ~(if (seq over)
             `(if (= (count ~'overage) ~over-count)
-               (new ~classname
+               (new ~nom
                     ~@field-args
                     ~@(for [i (range 0 (count over))]
                         (list `nth 'overage i)))
                (throw (clojure.lang.ArityException. (+ ~arg-count (count ~'overage)) (name '~fn-name))))
-            `(new ~classname ~@field-args))
+            `(new ~nom ~@field-args))
          {:contract ~chk}))))
 
 
@@ -274,13 +274,12 @@
        ~(build-positional-factory name classname fields invariants chk)
 
        (defconstrainedfn ~map-arrow-factory-name
-         ([{:keys ~fields :as kwargs#}]
+         ([{:keys ~fields :as m#}]
           ~invariants
           (with-meta
-            (. ~classname ~'create kwargs#)
+            (merge (new ~name ~@(for [e fields] nil)) m#)
             {:contract ~chk})))
-
-       ~classname)))
+       ~name)))
 
 (defn- apply-contract
   [f]

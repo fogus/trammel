@@ -8,7 +8,9 @@
                      [lein-marginalia "0.7.0"]
                      [lein-multi "1.1.0"]]
   :multi-deps {:all [[thneed "1.0.0-SNAPSHOT"]]
-               "1.3" [[org.clojure/clojure "1.3.0"]]
-               "1.4" [[org.clojure/clojure "1.4.0-beta1"]]})
+               "1.2"   [[org.clojure/clojure "1.2.0"]]
+               "1.2.1" [[org.clojure/clojure "1.2.1"]]
+               "1.3"   [[org.clojure/clojure "1.3.0"]]
+               "1.4"   [[org.clojure/clojure "1.4.0-beta1"]]})
 
 ;; lein multi test
