@@ -12,6 +12,7 @@ Example
 ### Function Contracts
 
 ```clojure
+
     (require '[trammel.provide :as provide])
     
     (defn sqr [n] (* n n))
@@ -37,6 +38,7 @@ Example
 ### Record Invariants
 
 ```clojure
+
     (use '[trammel.core :only (defconstrainedrecord)])
     
     (defconstrainedrecord Foo [a 1 b 2]
@@ -60,11 +62,13 @@ Example
     ;; invariants on records checked at runtime    
     (assoc (->Foo) :a "foo")
     ; Assert failed: (every? number? [a b])
+
 ```
 
 ### Type Invariants
 
 ```clojure
+
     (use '[trammel.core :only (defconstrainedtype)])
     
     (defconstrainedtype Foo [a b]
@@ -77,6 +81,26 @@ Example
     ;; invariants on types checked at constructions time
     (->Foo 1 :b)
     ; Assert failed: (every? number? [a b])
+
+```
+
+### Reference Invariants
+
+```clojure
+
+    (def a (constrained-atom 0
+         "only numbers allowed"
+         [number?]))
+    
+    @a
+	;=> 0
+    
+	(swap! a inc)
+	;=> 1
+	
+    (swap! a str)
+    (compare-and-set! a 0 "a")
+
 ```
 
 Getting
@@ -87,7 +111,9 @@ Getting
 Modify your [Leiningen](http://github.com/technomancy/leiningen) dependencies to include Trammel:
 
 ```clojure
-    :dependencies [[trammel "0.7.0-SNAPSHOT"] ...]
+
+    :dependencies [[trammel "0.7.0"] ...]
+
 ```
 
 ### Maven
@@ -95,11 +121,13 @@ Modify your [Leiningen](http://github.com/technomancy/leiningen) dependencies to
 Add the following to your `pom.xml` file:
 
 ```xml
+
     <dependency>
       <groupId>trammel</groupId>
       <artifactId>trammel</artifactId>
-      <version>0.7.0-SNAPSHOT</version>
+      <version>0.7.0</version>
     </dependency>
+
 ```
 
 Notes

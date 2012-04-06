@@ -264,7 +264,8 @@
         map-arrow-factory-name (symbol (str "map->" name))
         chk `(contract ~(symbol (str "chk-" name))
                        ~inv-description
-                       [{:keys ~fields :as m#}] ~invariants)]
+                       [{:keys ~fields :as m#}]
+                       ~invariants)]
     `(do
        (let [t# (defrecord ~name ~fields ~@etc)]
          (defn ~(symbol (str name \?)) [r#]
