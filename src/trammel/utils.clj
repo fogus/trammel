@@ -4,7 +4,8 @@
 (defmacro ^:private assert-w-message
   [check message]
   `(when-not ~check
-     (throw (new AssertionError (str "Trammel asserttion failed: " ~message "\n" (pr-str '~check))))))
+     (throw (new AssertionError (str "Trammel assertion failed: " ~message "\n"
+                                     (pr-str '~check))))))
 
 (defn check-args!
   [name slots inv-description invariants]
@@ -15,4 +16,3 @@
                          "[pre-conditions => post-conditions] or "
                          "{:pre [pre-conditions]}"
                          "for record type " name)))
-
