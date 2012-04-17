@@ -110,7 +110,7 @@
 
 ;; using default pre/post maps only
 
-(def doubler-contract-full-mappy
+#_(def doubler-contract-full-mappy
      (contract doubler
        "Test"
        [x] {:pre  [(pos? x)]
@@ -119,7 +119,7 @@
        [x y] {:pre [(pos? x) (pos? y)]
               :post [(= (* 2 (+ x y)) %)]}))
 
-(deftest doubler-contract-mappy-test
+#_(deftest doubler-contract-mappy-test
   (is (= 10 ((partial doubler-contract-full-mappy #(* 2 (+ %1 %2))) 2 3)))
   (is (= 10 ((partial doubler-contract-full-mappy #(+ %1 %1 %2 %2)) 2 3)))
   (is (= 10 ((partial doubler-contract-full-mappy #(* 2 %)) 5)))

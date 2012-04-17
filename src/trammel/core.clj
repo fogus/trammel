@@ -1,9 +1,8 @@
 ;; trammel.clj -- Contracts programming library for Clojure
 
 ;; by Michael Fogus - <http://fogus.me/fun/trammel>
-;; May 26, 2010
 
-; Copyright (c) Michael Fogus, 2010. All rights reserved.  The use
+; Copyright (c) Michael Fogus, 2010-2012. All rights reserved.  The use
 ; and distribution terms for this software are covered by the Eclipse
 ; Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
 ; which can be found in the file COPYING the root of this
@@ -44,8 +43,12 @@
        :post (if (= L '(=>)) M R)})
     cnstr))
 
-(defn tag-hocs [args cnstr]
-  nil)
+(defn tag-hocs [cnstr]
+    (map (fn [form]
+           (if (and (seq? form) (= '_ (first form)))
+             (list 'fn? (second form))
+             form))
+         cnstr))
 
 (defn- build-constraints-map 
   "Takes the corresponding arglist and a vector of the contract expectations, the latter of which looks 
@@ -62,7 +65,8 @@
         :post [(baz %)]}
   "
   [args cnstr]
-  (let [hocs (tag-hocs args cnstr)]
+  (let [cnstr (vec (tag-hocs cnstr))]
+    #_(swank.core/break)
     [args 
      (->> (build-pre-post-map cnstr)
           (fogus/manip-map (partial funcify '[%]) [:post])
@@ -74,7 +78,10 @@
 
   (macroexpand '(contract my-map "mymap" [fun sq] [(_ [n] number? => number?) (seq sq) => seq]))
 
-  (contract my-map "mymap" [fun sq] [(_ [n] number? => number?) (seq sq) => seq])
+  (contract my-map "mymap" [fun sq] [(_ fun [n] number? => number?) (seq sq) => seq])
+
+  (def cnstr '[(_ fun [n] number? => number?) (seq sq) => seq])
+
 )
 
 (defn- build-contract 
