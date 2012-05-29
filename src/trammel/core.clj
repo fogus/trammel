@@ -32,7 +32,7 @@
 
 (defn- build-pre-post-map
   "Takes a vector of the form `[pre ... => post ...]` and infers the expectations described
-   therein.  The map that comes out will look like Clojure's default pre- anlein d post-conditions
+   therein.  The map that comes out will look like Clojure's default pre- and post-conditions
    map.  If the argument is already a map then it's assumed that the default pre/post map is used and
    as a result is used directly without manipulation.
   "
@@ -180,6 +180,29 @@
          ~body
          {:constraints (into {} '~arity-cnstr)
           :docstring ~docstring}))))
+
+(comment
+
+  (build-pre-post-map '[pos? int? => neg?])
+  ;;=> {:pre (pos? int?), :post (neg?)}
+  
+  (build-constraints-map '[n] '[pos? int? => neg?])
+  ;;=> [[n] {:pre [(pos? n) (int? n)], :post [(neg? %)]}]
+  
+  (build-contract "foo " '[[n x] {:pre [(pos? n) (int? x)], :post [(neg? %)]}])
+
+  ([f n] (clojure.core/let [ret__2133__auto__ (try ((clojure.core/fn [] {:pre [(pos? n) (int? n)]} (f n)))
+                                                   (catch java.lang.AssertionError pre__2134__auto__
+                                                     (throw (java.lang.AssertionError. (clojure.core/str "Pre-condition failure: "
+                                                                                                         "foo " \newline
+                                                                                                         (.getMessage pre__2134__auto__))))))]
+                           (try ((clojure.core/fn [] {:post [(neg? %)]}
+                                                  ret__2133__auto__))
+                                (catch java.lang.AssertionError post__2135__auto__ (throw (java.lang.AssertionError. (clojure.core/str
+                                                                                                                      "Post-condition failure: "
+                                                                                                                      "foo " \newline
+                                                                                                                      (.getMessage post__2135__auto__))))))))
+)
 
 (defn with-constraints
   "A contract combinator.
