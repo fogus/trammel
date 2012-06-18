@@ -104,12 +104,13 @@
    richer assertion message.
   "
   [message cnstr]
-  (let [[args pre-post-map] cnstr]
-    `(~(into '[f] args)
+  (let [[args pre-post-map] cnstr
+        _f_ (gensym)]
+    `(~(into (vector _f_) args)
       (let [ret# (try
                    ((fn []
                       ~(select-keys pre-post-map [:pre])
-                      ~(list* 'f (mapcat (fn [item]
+                      ~(list* _f_ (mapcat (fn [item]
                                            (cond (symbol? item) [item]
                                                  (map? item) [(:as item)]
                                                  :else [item]))
