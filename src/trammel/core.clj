@@ -14,208 +14,10 @@
   "The core contracts programming functions and macros for Trammel."
   (:use [trammel.funcify :only (funcify)]
         [trammel.factors]
-        [trammel.utils])
+        [trammel.utils]
+        [clojure.core.contracts :only (contract with-constraints)])
   (:require [fogus.thneed.utils :as fogus]))
 
-;; HOF support
-
-(defrecord HOC [args argspec ctx])
-
-(defmacro _ [args & argspec]
-  `(HOC. '~args (vec '~argspec) nil))
-
-(comment
-  (_ [n] even? number? => number?)
-)
-
-;; # base functions and macros
-
-(defn- build-pre-post-map
-  "Takes a vector of the form `[pre ... => post ...]` and infers the expectations described
-   therein.  The map that comes out will look like Clojure's default pre- and post-conditions
-   map.  If the argument is already a map then it's assumed that the default pre/post map is used and
-   as a result is used directly without manipulation.
-  "
-  [cnstr]
-  (if (vector? cnstr)
-    (let [[L M R] (partition-by #{'=>} cnstr)]
-      {:pre  (when (not= L '(=>)) L)
-       :post (if (= L '(=>)) M R)})
-    cnstr))
-
-(defn tag-hocs [cnstr]
-    (map (fn [form]
-           (if (and (seq? form) (= '_ (first form)))
-             (list 'fn? (second form))
-             form))
-         cnstr))
-
-(defn- build-constraints-map 
-  "Takes the corresponding arglist and a vector of the contract expectations, the latter of which looks 
-   like any of the following:
-
-       [(= 0 _)] or [number?] ;; only the pre-
-       [number? => number?]   ;; a pre- and post-
-       [=> number?]           ;; only a post-
-       [foo bar => baz]       ;; 2 pre- and 1 post-
-
-   It then takes this form and builds a pre- and post-condition map of the form:
-
-       {:pre  [(foo x) (bar x)]
-        :post [(baz %)]}
-  "
-  [args cnstr]
-  (let [cnstr (vec (tag-hocs cnstr))]
-    #_(swank.core/break)
-    [args 
-     (->> (build-pre-post-map cnstr)
-          (fogus/manip-map (partial funcify '[%]) [:post])
-          (fogus/manip-map (partial funcify args) [:pre]))]))
-
-(comment
-  (let [hoc (_ [n] even? number? => number?)]
-    (build-contract 'hof (build-constraints-map (:args hoc) (:argspec hoc))))
-
-  (macroexpand '(contract my-map "mymap" [fun sq] [(_ [n] number? => number?) (seq sq) => seq]))
-
-  (contract my-map "mymap" [fun sq] [(_ fun [n] number? => number?) (seq sq) => seq])
-
-  (def cnstr '[(_ fun [n] number? => number?) (seq sq) => seq])
-
-)
-
-(defn- build-contract 
-  "Expects a seq representing an arity-based expectation of the form:
-
-        [[x] {:pre [(foo x)] :post [(bar %)]}]
-
-   It then uses this data to build another list reprsenting a specific arity body
-   for a higher-order function with attached pre- and post-conditions that directly 
-   calls the function passed in:
-
-        ([f x] {:pre [(foo x)] :post [(bar %)]} (f x))
-
-   However, the picture is slightly more compilcated than that because Clojure does
-   not have disparate pre-/post-conditions.  Therefore, it's on me to provide a
-   slightly more crystaline picture of the condition failure when it occurs.  As a
-   result the body of the contract is interwoven with `try`/`catch` blocks to catch
-   and examine the contents of `AssertionErrors` and based on context rethrow them
-   with more information.  At the moment this information only takes the form of a
-   richer assertion message.
-  "
-  [message cnstr]
-  (let [[args pre-post-map] cnstr
-        _f_ (gensym)]
-    `(~(into (vector _f_) args)
-      (let [ret# (try
-                   ((fn []
-                      ~(select-keys pre-post-map [:pre])
-                      ~(list* _f_ (mapcat (fn [item]
-                                           (cond (symbol? item) [item]
-                                                 (map? item) [(:as item)]
-                                                 :else [item]))
-                                         args))))
-                   (catch AssertionError pre#
-                     (throw (AssertionError. (str "Pre-condition failure: " ~message \newline (.getMessage pre#))))))]
-        (try
-          ((fn []
-             ~(select-keys pre-post-map [:post])
-             ret#))
-          (catch AssertionError post#
-            (throw (AssertionError. (str "Post-condition failure: " ~message \newline (.getMessage post#))))))))))
-
-
-(defmacro contract
-  "The base contract form returning a higher-order function that can then be partially
-   applied to an existing function to 'apply' a contract.  Take for example a simple
-   contract that describes an expectation for a function that simply takes one or two
-   numbers and returns the double:
-   
-       (def doubler-contract
-         (contract doubler
-           “Ensures that when given a number,
-            the result is doubled.”
-           [x] [number? => (= (* 2 x) %)]
-
-           [x y] [(every? number? [x y])
-                  =>
-                  (= (* 2 (+ x y)) %)]))
-
-   You can then partially apply this contract with an existing function:
-
-       (def doubler
-            (partial doubler-contract
-                     #(* 2 %)))
-       
-       (def bad-doubler
-            (partial doubler-contract
-                     #(* 3 %)))
-
-   And then running these functions will be checked against the contract at runtime:
-
-       (doubler 2)
-       ;=> 4
-       
-       (bad-doubler 2)
-       ; java.lang.AssertionError:
-       ;   Assert failed: (= (* 2 x) %)
-
-   Similar results would occur for the 2-arity versions of `doubler` and `bad-doubler`.
-
-   While it's fine to use `partial` directly, it's better to use the `with-constraints` function
-   found in this same library.
-
-   If you're so inclined, you can inspect the terms of the contract via its metadata, keyed on
-   the keyword `:constraints`.
-  "
-  [n docstring & constraints]
-  (if (not (string? docstring))
-    (throw (IllegalArgumentException. "Sorry, but contracts require docstrings"))
-    (let [raw-cnstr   (partition 2 constraints)
-          arity-cnstr (for [[a c] raw-cnstr]
-                        (build-constraints-map a c))
-          fn-arities  (for [b arity-cnstr]
-                        (build-contract docstring b))
-          body (list* 'fn n fn-arities)]
-      `(with-meta 
-         ~body
-         {:constraints (into {} '~arity-cnstr)
-          :docstring ~docstring}))))
-
-(comment
-
-  (build-pre-post-map '[pos? int? => neg?])
-  ;;=> {:pre (pos? int?), :post (neg?)}
-  
-  (build-constraints-map '[n] '[pos? int? => neg?])
-  ;;=> [[n] {:pre [(pos? n) (int? n)], :post [(neg? %)]}]
-  
-  (build-contract "foo " '[[n x] {:pre [(pos? n) (int? x)], :post [(neg? %)]}])
-
-  ([f n] (clojure.core/let [ret__2133__auto__ (try ((clojure.core/fn [] {:pre [(pos? n) (int? n)]} (f n)))
-                                                   (catch java.lang.AssertionError pre__2134__auto__
-                                                     (throw (java.lang.AssertionError. (clojure.core/str "Pre-condition failure: "
-                                                                                                         "foo " \newline
-                                                                                                         (.getMessage pre__2134__auto__))))))]
-                           (try ((clojure.core/fn [] {:post [(neg? %)]}
-                                                  ret__2133__auto__))
-                                (catch java.lang.AssertionError post__2135__auto__ (throw (java.lang.AssertionError. (clojure.core/str
-                                                                                                                      "Post-condition failure: "
-                                                                                                                      "foo " \newline
-                                                                                                                      (.getMessage post__2135__auto__))))))))
-)
-
-(defn with-constraints
-  "A contract combinator.
-   
-   Takes a target function and a number of contracts and returns a function with the contracts
-   applied to the original.  This is the preferred way to apply a contract previously created
-   using `contract` as the use of `partial` may not work as implementation details change.
-  "
-  ([f] f)
-  ([f c] (partial c f))
-  ([f c & more]
-     (apply with-constraints (with-constraints f c) more)))
 
 (defmacro defcontract
   "Convenience macro for defining a named contract.  Equivalent to `(def fc (contract ...))`"
@@ -248,7 +50,7 @@
         body  (for [[args cnstr & bd] body]
                 (list* args
                        (if (vector? cnstr)
-                         (second (build-constraints-map args cnstr))
+                         (second (#'clojure.core.contracts.impl.transformers/build-constraints-description args cnstr (:doc mdata)))
                          cnstr)
                        bd))]
     `(defn ~name
@@ -395,4 +197,24 @@
                                      ~invariants)
                                    (fn [x#] true)))
        r#)))
+
+(comment
+  ;; HOF support
+
+  (defrecord HOC [args argspec ctx])
+
+  (defmacro _ [args & argspec]
+    `(HOC. '~args (vec '~argspec) nil))
+  
+  (_ [n] even? number? => number?)
+
+  (let [hoc (_ [n] even? number? => number?)]
+    (build-contract 'hof (build-constraints-map (:args hoc) (:argspec hoc))))
+
+  (macroexpand '(contract my-map "mymap" [fun sq] [(_ [n] number? => number?) (seq sq) => seq]))
+
+  (contract my-map "mymap" [fun sq] [(_ fun [n] number? => number?) (seq sq) => seq])
+
+  (def cnstr '[(_ fun [n] number? => number?) (seq sq) => seq])
+)
 

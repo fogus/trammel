@@ -14,7 +14,7 @@
 (ns trammel.provide
   "Provides the Var manipulation macro offering ex post facto application of contracts
    to existing functions."
-  (:use  [trammel.core :only (with-constraints contract)]))
+  (:use  [clojure.core.contracts :only (with-constraints contract)]))
 
 (defmacro contracts
   [& kontracts]

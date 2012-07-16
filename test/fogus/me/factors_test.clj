@@ -1,5 +1,5 @@
 (ns fogus.me.factors-test
-  (:use [trammel.core :only (contract)])
+  (:use [clojure.core.contracts :only (contract)])
   (:use trammel.factors)
   (:use [clojure.test :only (deftest is are)]))
 
