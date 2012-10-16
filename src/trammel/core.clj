@@ -15,8 +15,7 @@
   (:use [trammel.funcify :only (funcify)]
         [trammel.factors]
         [trammel.utils]
-        [clojure.core.contracts :only (contract with-constraints)])
-  (:require [fogus.thneed.utils :as fogus]))
+        [clojure.core.contracts :only (contract with-constraints)]))
 
 
 (defmacro defcontract
