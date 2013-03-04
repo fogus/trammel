@@ -30,7 +30,8 @@
   [(number? g)])
 
 (deftest test-record-with-field-f
-  (is (= 1 (:g (->HasG 1)))))
+  (is (= 1 (:g (->HasG 1))))
+  (is (= 42 (:g (assoc (->HasG 1) :g 42)))))
 
 (deftest test-constrained-record-with-vector-spec
   (is (= (:a (->AllNumbersRecord 42 108)) 42))

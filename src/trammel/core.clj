@@ -74,7 +74,6 @@
     `(defconstrainedfn ~fn-name
        [~@field-args ~@(if (seq over) '[& overage] [])]
        ~invariants
-       (println (str "build-a " '~field-args))
        (with-meta
          ~(if (seq over)
             `(if (= (count ~'overage) ~over-count)
@@ -94,7 +93,6 @@
 
   (macroexpand '(trammel.core/defconstrainedfn ->HasF [g]
     [(number? g)]
-    (println (str "build-a " (quote (g))))
     (with-meta (new HasF g)
       {:contract (clojure.core.contracts/contract chk-HasF
                                                   "Has a field called f"
@@ -112,6 +110,15 @@
   [(number? g)])
 
   (->HasG 1)
+  
+  (def ass (:original (meta assoc)))
+  (ass (->HasG 1) :g 2)
+
+  (assoc (->HasG 1) :g 2)
+  
+  (meta assoc)
+
+  
 )
 
 (defmacro defconstrainedrecord
@@ -151,7 +158,8 @@
         (if-let [contract (and m (-> m meta :contract))]
           ((partial contract identity) (apply f m args))
           (apply f m args)))
-      {:hooked true})))
+      {:hooked true
+       :original f})))
 
 (when *assert*
   (alter-var-root (var assoc) apply-contract)
