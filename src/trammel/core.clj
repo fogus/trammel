@@ -85,42 +85,6 @@
             `(new ~nom ~@field-args))
          {:contract ~chk}))))
 
-(comment
-
-  (macroexpand '(defconstrainedrecord HasF [g]
-                  "Has a field called f"
-                  [(number? g)]))
-
-  (macroexpand '(trammel.core/defconstrainedfn ->HasF [g]
-    [(number? g)]
-    (with-meta (new HasF g)
-      {:contract (clojure.core.contracts/contract chk-HasF
-                                                  "Has a field called f"
-                                                  [{:as m__1123__auto__, :keys [g]}]
-                                                  [(number? g)])})))
-
-
-  (macroexpand '(clojure.core.contracts/contract chk-HasF
-                                                       "Has a field called f"
-                                                       [{:as m__1123__auto__, :keys [g]}]
-                                                       [(number? g)]))
-
-  (defconstrainedrecord HasG [g]
-  "Has a field called g"
-  [(number? g)])
-
-  (->HasG 1)
-  
-  (def ass (:original (meta assoc)))
-  (ass (->HasG 1) :g 2)
-
-  (assoc (->HasG 1) :g 2)
-  
-  (meta assoc)
-
-  
-)
-
 (defmacro defconstrainedrecord
   [name slots inv-description invariants & etc]
   (let [fields (vec slots)
