@@ -74,6 +74,7 @@
     `(defconstrainedfn ~fn-name
        [~@field-args ~@(if (seq over) '[& overage] [])]
        ~invariants
+       (println (str "build-a " '~field-args))
        (with-meta
          ~(if (seq over)
             `(if (= (count ~'overage) ~over-count)
@@ -85,10 +86,37 @@
             `(new ~nom ~@field-args))
          {:contract ~chk}))))
 
+(comment
+
+  (macroexpand '(defconstrainedrecord HasF [g]
+                  "Has a field called f"
+                  [(number? g)]))
+
+  (macroexpand '(trammel.core/defconstrainedfn ->HasF [g]
+    [(number? g)]
+    (println (str "build-a " (quote (g))))
+    (with-meta (new HasF g)
+      {:contract (clojure.core.contracts/contract chk-HasF
+                                                  "Has a field called f"
+                                                  [{:as m__1123__auto__, :keys [g]}]
+                                                  [(number? g)])})))
+
+
+  (macroexpand '(clojure.core.contracts/contract chk-HasF
+                                                       "Has a field called f"
+                                                       [{:as m__1123__auto__, :keys [g]}]
+                                                       [(number? g)]))
+
+  (defconstrainedrecord HasG [g]
+  "Has a field called g"
+  [(number? g)])
+
+  (->HasG 1)
+)
 
 (defmacro defconstrainedrecord
   [name slots inv-description invariants & etc]
-  (let [fields       (vec slots)
+  (let [fields (vec slots)
         ns-part (namespace-munge *ns*)
         classname (symbol (str ns-part "." name))
         ctor-name (symbol (str name \.))
@@ -108,6 +136,7 @@
        (defconstrainedfn ~map-arrow-factory-name
          ([{:keys ~fields :as m#}]
           ~invariants
+          (println (str "building " m#))  
           (with-meta
             (merge (new ~name ~@(for [e fields] nil)) m#)
             {:contract ~chk})))

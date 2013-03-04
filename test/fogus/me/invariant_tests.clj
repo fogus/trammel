@@ -25,6 +25,13 @@
   "AllNumbersType type fields are expected to hold only numbers."
   [(every? number? [a b])])
 
+(defconstrainedrecord HasG [g]
+  "Has a field called g"
+  [(number? g)])
+
+(deftest test-record-with-field-f
+  (is (= 1 (:g (->HasG 1)))))
+
 (deftest test-constrained-record-with-vector-spec
   (is (= (:a (->AllNumbersRecord 42 108)) 42))
   (is (= (:b (->AllNumbersRecord 42 108)) 108))
