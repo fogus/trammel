@@ -118,8 +118,8 @@
   (if (:hooked (meta f))
     f
     (with-meta
-      (fn [m & args]
-        (if-let [contract (-> m meta :contract)]
+      (fn [& [m & args]]
+        (if-let [contract (and m (-> m meta :contract))]
           ((partial contract identity) (apply f m args))
           (apply f m args)))
       {:hooked true})))
