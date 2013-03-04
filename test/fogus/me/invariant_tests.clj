@@ -53,6 +53,7 @@
 (deftest test-constrained-record-with-map-spec
   (is (= (:a (->Buzz 42 108)) 42))
   (is (= (:b (->Buzz 42 108)) 108))
+  (is (nil? (merge)))
   (is (thrown? Exception (->Buzz)))
   (is (thrown? Exception (->Buzz 12))))
 
