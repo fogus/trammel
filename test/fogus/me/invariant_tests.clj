@@ -12,8 +12,8 @@
 ;; remove this notice, or any other, from this software.
 
 (ns fogus.me.invariant-tests
-  (:use [trammel.core :only [defconstrainedrecord defconstrainedtype]])
-  (:use [clojure.test :only [deftest is testing]]))
+  (:use [trammel.core :only (defconstrainedrecord defconstrainedtype)])
+  (:use [clojure.test :only (deftest is testing)]))
 
 (defconstrainedrecord AllNumbersRecord [a b]
   "AllNumbersRecord record fields are expected to hold only numbers."
