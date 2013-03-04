@@ -143,7 +143,6 @@
        (defconstrainedfn ~map-arrow-factory-name
          ([{:keys ~fields :as m#}]
           ~invariants
-          (println (str "building " m#))  
           (with-meta
             (merge (new ~name ~@(for [e fields] nil)) m#)
             {:contract ~chk})))

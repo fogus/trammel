@@ -13,7 +13,7 @@
 
 (ns fogus.me.invariant-tests
   (:use [trammel.core :only [defconstrainedrecord defconstrainedtype]])
-  (:use [clojure.test :only [deftest is]]))
+  (:use [clojure.test :only [deftest is testing]]))
 
 (defconstrainedrecord AllNumbersRecord [a b]
   "AllNumbersRecord record fields are expected to hold only numbers."
@@ -29,9 +29,18 @@
   "Has a field called g"
   [(number? g)])
 
-(deftest test-record-with-field-f
+(deftest test-record-with-field-g
   (is (= 1 (:g (->HasG 1))))
   (is (= 42 (:g (assoc (->HasG 1) :g 42)))))
+
+(defconstrainedrecord HasF [f]
+  "Has a field called f"
+  [(number? f)])
+
+(deftest test-record-with-field-f
+  (testing "regression for https://github.com/fogus/trammel/issues/18"
+    (is (= 1 (:f (->HasF 1))))
+    (is (= 42 (:f (assoc (->HasF 1) :f 42))))))
 
 (deftest test-constrained-record-with-vector-spec
   (is (= (:a (->AllNumbersRecord 42 108)) 42))
