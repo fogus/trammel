@@ -3,7 +3,7 @@
 ;; by Michael Fogus - <http://fogus.me/fun/trammel>
 ;; May 26, 2010
 
-; Copyright (c) Michael Fogus, 2010. All rights reserved.  The use
+; Copyright (c) Michael Fogus, 2010-2013. All rights reserved.  The use
 ; and distribution terms for this software are covered by the Eclipse
 ; Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
 ; which can be found in the file COPYING the root of this
