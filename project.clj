@@ -1,7 +1,7 @@
 (defproject trammel "0.8.0-SNAPSHOT"
   :description "A library providing contracts programming for Clojure."
   :dependencies [[org.clojure/clojure "1.5.1"] 
-                 [org.clojure/core.contracts "0.0.2"]]
+                 [org.clojure/core.contracts "0.0.4"]]
   :dev-dependencies [[lein-clojars "0.8.0"]
                      [jline "0.9.94"]
                      [swank-clojure "1.4.2"]
