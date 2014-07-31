@@ -1,4 +1,4 @@
-(defproject trammel "0.8.0-SNAPSHOT"
+(defproject trammel "0.8.0"
   :description "A library providing contracts programming for Clojure."
   :dependencies [[org.clojure/clojure "1.6.0"] 
                  [org.clojure/core.contracts "0.0.5"]]
