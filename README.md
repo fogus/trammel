@@ -3,6 +3,8 @@ Trammel
 
 [Contracts programming](http://c2.com/cgi/wiki?DesignByContract) for Clojure.
 
+[![Clojars Project](http://clojars.org/trammel/latest-version.svg)](http://clojars.org/trammel)
+
 - [Official documentation and usage scenarios](http://fogus.github.com/trammel/)
 - [Original announcement](http://blog.fogus.me/2010/05/25/trammel-contracts-programming-for-clojure/) (*syntax has evolved since then*)
 
